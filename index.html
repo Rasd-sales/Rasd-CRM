@@ -777,14 +777,14 @@
 
             <div class="flex border-b border-slate-200 mb-5 text-xs font-bold">
                 <button onclick="switchAuthTab('login')" id="authTabLogin" class="flex-1 py-2.5 text-center text-brand-600 border-b-2 border-brand-600 transition-all">تسجيل الدخول</button>
-                <button onclick="switchAuthTab('register')" id="authTabRegister" class="flex-1 py-2.5 text-center text-slate-500 transition-all">تسجيل شركة جديدة</button>
+                <button onclick="switchAuthTab('register')" id="authTabRegister" class="flex-1 py-2.5 text-center text-slate-500 transition-all">تسجيل مستخدم جديد</button>
             </div>
 
             <!-- Tab 1: Direct Login Form -->
             <div id="authViewLogin" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني للشركة *</label>
-                    <input type="email" id="loginEmail" placeholder="company@domain.com" class="w-full p-3 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني *</label>
+                    <input type="email" id="loginEmail" placeholder="user@company.com" class="w-full p-3 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور *</label>
@@ -795,26 +795,26 @@
                 </button>
             </div>
 
-            <!-- Tab 2: Register New Company -->
+            <!-- Tab 2: Register New User -->
             <div id="authViewRegister" class="hidden space-y-3.5">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المصنع أو الشركة *</label>
                     <input type="text" id="regCompany" placeholder="مثال: مصنع النصر للتوريدات" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المسؤول / مدير المبيعات *</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم / مسؤول المبيعات *</label>
                     <input type="text" id="regUser" placeholder="م/ أحمد سامي" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني للشركة *</label>
-                    <input type="email" id="regEmail" placeholder="info@company.com" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني *</label>
+                    <input type="email" id="regEmail" placeholder="user@company.com" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور *</label>
                     <input type="password" id="regPassword" placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
                 </div>
                 <button type="button" onclick="handleRegisterSubmit()" id="btnRegisterSubmit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الشركة وحفظها سحابياً
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الحساب وحفظه سحابياً
                 </button>
             </div>
         </div>
@@ -832,7 +832,7 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50Y2pqZHNqcXlleWloeHZjeWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NTUxMzcsImV4cCI6MjEwODUzMTEzN30.pASadXPM2ljq4iVllpigj5eSo_XYfV1cEdw0y6GBMOw";
 
         let supabaseClient = null;
-        let currentTenant = null; // الشركة المسجلة دخول حالياً
+        let currentTenant = null;
         let deals = [];
         let tasks = [];
         let parsedExcelDeals = [];
@@ -854,7 +854,6 @@
             }
         }
 
-        // فحص إذا كان هناك حساب مسجل من قبل على هذا الجهاز
         async function checkAutoLogin() {
             const savedTenant = localStorage.getItem('rasd_active_session_v2');
             if (savedTenant) {
@@ -868,7 +867,6 @@
                     localStorage.removeItem('rasd_active_session_v2');
                 }
             }
-            // إذا لم يكن مسجلاً، فتح نافذة تسجيل الدخول فوراً
             openAuthModal();
         }
 
@@ -884,12 +882,10 @@
             document.getElementById('authTabRegister').className = !isLogin ? "flex-1 py-2.5 text-center text-brand-600 border-b-2 border-brand-600 font-bold" : "flex-1 py-2.5 text-center text-slate-500 font-bold";
         }
 
-        // كود تحويل الإيميل إلى معرف شركة ثابت وموحد على كل الأجهزة
         function emailToTenantId(email) {
             return 'tenant_' + email.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
         }
 
-        // 1. تسجيل الدخول السحابي الموحد (لابتوب + موبايل)
         async function handleLoginSubmit() {
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const pass = document.getElementById('loginPassword').value.trim();
@@ -920,7 +916,6 @@
                     return;
                 }
 
-                // تم العثور على الحساب بنجاح في السحابة
                 currentTenant = {
                     id: data.id,
                     company: data.company,
@@ -933,7 +928,6 @@
                 closeModal('authModal');
                 showToast(`مرحباً بك في منظومة (${currentTenant.company}) ✓`);
                 
-                // جلب صفقات هذه الشركة المحددة من السحابة فوراً
                 await loadDataFromCloud();
 
             } catch (err) {
@@ -945,7 +939,6 @@
             }
         }
 
-        // 2. إنشاء شركة جديدة موحدة سحابياً (تمنع التكرار)
         async function handleRegisterSubmit() {
             const company = document.getElementById('regCompany').value.trim();
             const user = document.getElementById('regUser').value.trim();
@@ -958,13 +951,12 @@
             }
 
             const btn = document.getElementById('btnRegisterSubmit');
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري حفظ الشركة في السحابة...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري حفظ المستخدم في السحابة...';
             lucide.createIcons();
 
             try {
                 if (!supabaseClient) initSupabase();
 
-                // التحقق أولاً إذا كان الإيميل مسجلاً بالفعل
                 const { data: existingUser } = await supabaseClient
                     .from('tenants')
                     .select('email')
@@ -975,12 +967,11 @@
                     showToast("هذا الحساب مسجل بالفعل! انتقل لتبويب (تسجيل الدخول)");
                     switchAuthTab('login');
                     document.getElementById('loginEmail').value = email;
-                    btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الشركة وحفظها سحابياً';
+                    btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الحساب وحفظه سحابياً';
                     lucide.createIcons();
                     return;
                 }
 
-                // كود الشركة الثابت
                 const fixedTenantId = emailToTenantId(email);
 
                 const newTenantRecord = {
@@ -997,7 +988,7 @@
 
                 if (insertError) {
                     showToast("تعذر إنشاء الحساب في السحابة: " + insertError.message);
-                    btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الشركة وحفظها سحابياً';
+                    btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الحساب وحفظه سحابياً';
                     lucide.createIcons();
                     return;
                 }
@@ -1012,9 +1003,8 @@
                 localStorage.setItem('rasd_active_session_v2', JSON.stringify(currentTenant));
                 refreshTenantHeader();
                 closeModal('authModal');
-                showToast(`تم إنشاء حساب شركة (${company}) بنجاح ✓`);
+                showToast(`تم إنشاء حساب المستخدم (${user}) بنجاح ✓`);
 
-                // تفريغ الشاشة والبدء فوراً بحساب سحابي فارغ وجاهز
                 deals = [];
                 tasks = [];
                 refreshAllViews();
@@ -1023,12 +1013,11 @@
                 console.error("Register Error:", err);
                 showToast("حدث خطأ أثناء الاتصال بالسحابة");
             } finally {
-                btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الشركة وحفظها سحابياً';
+                btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الحساب وحفظه سحابياً';
                 lucide.createIcons();
             }
         }
 
-        // جلب الصفقات والمهام المربوطة بكود هذه الشركة فقط من السحابة
         async function loadDataFromCloud() {
             if (!supabaseClient || !currentTenant) return;
 
@@ -1039,11 +1028,7 @@
                     .eq('tenant_id', currentTenant.id)
                     .order('created_at', { ascending: false });
 
-                if (!dError && cloudDeals) {
-                    deals = cloudDeals;
-                } else {
-                    deals = [];
-                }
+                deals = (!dError && cloudDeals) ? cloudDeals : [];
 
                 const { data: cloudTasks, error: tError } = await supabaseClient
                     .from('tasks')
@@ -1051,11 +1036,7 @@
                     .eq('tenant_id', currentTenant.id)
                     .order('created_at', { ascending: false });
 
-                if (!tError && cloudTasks) {
-                    tasks = cloudTasks;
-                } else {
-                    tasks = [];
-                }
+                tasks = (!tError && cloudTasks) ? cloudTasks : [];
 
                 refreshAllViews();
 
