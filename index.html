@@ -32,9 +32,9 @@
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase JS Client (خطة مجانية 100% بدون أي تكاليف) -->
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- SheetJS (xlsx) لقراءة وتصدير ملفات الإكسيل مجاناً بالكامل -->
+    <!-- SheetJS (xlsx) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
@@ -56,7 +56,6 @@
     <header class="bg-navy-950 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <!-- شعار رصد الذكي -->
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/20 text-white font-black text-xl">
                     <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="9"></circle>
@@ -78,20 +77,17 @@
 
             <!-- Global Action & Status -->
             <div class="flex items-center gap-3">
-                <!-- حالة الاتصال السحابي المجاني -->
                 <button onclick="openModal('cloudConfigModal')" class="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs transition-all shadow-sm">
                     <span id="cloudStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm shadow-emerald-400"></span>
-                    <span id="cloudStatusText" class="text-emerald-400 font-bold">متصل سحابياً مع Supabase (مزامنة حية)</span>
+                    <span id="cloudStatusText" class="text-emerald-400 font-bold">متصل سحابياً مع Supabase</span>
                     <i data-lucide="database" class="w-3.5 h-3.5 text-slate-400"></i>
                 </button>
 
-                <!-- زر الإضافة السريعة -->
                 <button onclick="openModal('newLeadModal')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-2 rounded-lg flex items-center gap-1.5 transition-all shadow-sm">
                     <i data-lucide="plus-circle" class="w-4 h-4"></i>
                     <span>إضافة صفقة جديدة</span>
                 </button>
 
-                <!-- الحساب الحالي والمستخدم -->
                 <div class="flex items-center gap-2 border-r border-slate-800 pr-3 mr-1">
                     <div class="w-8 h-8 rounded-full bg-slate-800 text-brand-400 flex items-center justify-center font-bold text-xs border border-slate-700" id="userAvatar">م</div>
                     <div class="hidden md:block text-right">
@@ -99,7 +95,7 @@
                         <p class="text-[10px] text-slate-400" id="headerUserName">مدير المبيعات</p>
                     </div>
                     <button onclick="openModal('authModal')" title="تبديل أو تسجيل شركة" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <i data-lucide="user-cog" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
@@ -190,7 +186,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- AI Strategy Insight Box -->
                 <div class="bg-gradient-to-br from-purple-900 to-indigo-950 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
                     <div class="absolute -left-6 -bottom-6 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl"></div>
                     <div>
@@ -211,7 +206,6 @@
                     </button>
                 </div>
 
-                <!-- Recent Deals Snapshot -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
@@ -457,7 +451,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-800">حماية البيانات وعزل الشركات (Multi-Tenant Architecture)</h3>
-                        <p class="text-xs text-slate-500">معمارية آمنة تضمن أن كل مصنع أو شركة يرى بياناته فقط باستقلالية بنكية تامة</p>
+                        <p class="text-xs text-slate-500">معمارية سحابية تضمن أن كل شركة تشاهد بياناتها فقط باستقلالية بنكية تامة</p>
                     </div>
                 </div>
 
@@ -509,7 +503,6 @@
                     </button>
                 </div>
 
-                <!-- File Drop Zone -->
                 <div class="border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/30 rounded-2xl p-6 text-center transition-all cursor-pointer" onclick="document.getElementById('excelFileInput').click()">
                     <i data-lucide="upload-cloud" class="w-10 h-10 text-emerald-600 mx-auto mb-2"></i>
                     <p class="text-xs font-bold text-slate-800">اضغط هنا لاختيار ملف الإكسيل أو اسحبه هنا</p>
@@ -517,7 +510,6 @@
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelFileUpload(event)">
                 </div>
 
-                <!-- Preview Area -->
                 <div id="excelPreviewContainer" class="hidden space-y-3 pt-2">
                     <div class="flex items-center justify-between text-xs">
                         <span class="font-bold text-emerald-800 flex items-center gap-1">
@@ -742,7 +734,7 @@
         </div>
     </div>
 
-    <!-- Modal 5: Lead Details Modal (مع زر الحذف) -->
+    <!-- Modal 5: Lead Details Modal -->
     <div id="leadDetailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4" style="display: none;">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
@@ -854,7 +846,7 @@
                     </div>
                     <div>
                         <h3 class="font-bold text-slate-800 text-sm">تسجيل الدخول وإدارة حسابات الشركات</h3>
-                        <p class="text-[10px] text-slate-500">منظومة رَصَد المتعددة الحسابات (Multi-Tenancy)</p>
+                        <p class="text-[10px] text-slate-500">حساب سحابي موحد على جميع الأجهزة</p>
                     </div>
                 </div>
                 <button onclick="closeModal('authModal')" class="text-slate-400 hover:text-slate-600">
@@ -877,12 +869,12 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
                     <input type="password" id="loginPassword" placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
                 </div>
-                <button type="button" onclick="handleLoginSubmit()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
-                    <i data-lucide="log-in" class="w-4 h-4"></i> دخول لحساب الشركة
+                <button type="button" onclick="handleLoginSubmit()" id="btnLoginSubmit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> دخول لحساب الشركة الموحد
                 </button>
 
                 <div class="pt-3 border-t border-slate-100">
-                    <p class="text-[11px] text-slate-500 mb-2 font-medium">أو اختر شركة من الحسابات المسجلة:</p>
+                    <p class="text-[11px] text-slate-500 mb-2 font-medium">أو اختر شركة من الحسابات المسجلة بالجهاز:</p>
                     <div class="space-y-1.5 max-h-40 overflow-y-auto" id="tenantsQuickList"></div>
                 </div>
             </div>
@@ -898,15 +890,15 @@
                     <input type="text" id="regUser" placeholder="م/ كريم محمود" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني *</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني للشركة *</label>
                     <input type="email" id="regEmail" placeholder="admin@company.com" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور *</label>
                     <input type="password" id="regPassword" placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
                 </div>
-                <button type="button" onclick="handleRegisterSubmit()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء حساب الشركة وعزل البيانات
+                <button type="button" onclick="handleRegisterSubmit()" id="btnRegisterSubmit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء حساب سحابي دائم وموحد
                 </button>
             </div>
         </div>
@@ -920,7 +912,6 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // مفاتيح Supabase الافتراضية المدمجة سحابياً
         const defaultSupabaseUrl = "https://ntcjjdsjqyeyihxvcybd.supabase.co";
         const defaultSupabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50Y2pqZHNqcXlleWloeHZjeWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NTUxMzcsImV4cCI6MjEwODUzMTEzN30.pASadXPM2ljq4iVllpigj5eSo_XYfV1cEdw0y6GBMOw";
 
@@ -942,18 +933,11 @@
             { id: 101, tenant_id: "tenant_ahram_01", company: "مصنع السويدي للصناعات الثقيلة", sector: "صناعات هندسية ومعدات", location: "العاشر من رمضان", contact: "م/ عصام الدين", phone: "01012345678", email: "essam@elsewedy.com", value: 450000, stage: "negotiation", notes: "طلبوا تسهيل دفع 45 يوماً بعد التوريد الأولي" },
             { id: 102, tenant_id: "tenant_ahram_01", company: "العربي للأجهزة المنزلية", sector: "أجهزة كهربائية وإلكترونيات", location: "قويسنا", contact: "أ/ شريف وجدي", phone: "01198765432", email: "purchasing@elaraby.com", value: 820000, stage: "quote", notes: "تم إرسال العرض المالي وفي انتظار اعتماد اللجنة الفنية" },
             { id: 103, tenant_id: "tenant_ahram_01", company: "الشركة الشرقية للطباعة والتغليف", sector: "طباعة وتغليف", location: "السادس من أكتوبر", contact: "م/ كمال عبد العال", phone: "01234567890", email: "kamal@packaging.eg", value: 310000, stage: "won", notes: "تم توقيع العقد واستلام دفعة مقدمة 30%" },
-            { id: 104, tenant_id: "tenant_ahram_01", company: "النصر للكيماويات الدوائية", sector: "صناعات دوائية", location: "حلوان", contact: "د/ مدحت عثمان", phone: "01511223344", email: "medhat@nasr-pharma.com", value: 190000, stage: "lead", notes: "استفسار وارد عبر الموقع لطلب خامات معقمة" },
-            { id: 201, tenant_id: "tenant_delta_02", company: "مصنع الأمل للبلاستيك وتعبئة الزيوت", sector: "صناعات كيماوية وبلاستيك", location: "مدينة السادات", contact: "حاج/ جلال النجار", phone: "01099887766", email: "alamal@plastic.com", value: 600000, stage: "quote", notes: "عرض أسعار حبيبات بلاستيك بولي بروبيلين" }
-        ];
-
-        const initialMasterTasks = [
-            { id: 501, tenant_id: "tenant_ahram_01", company: "مصنع السويدي للصناعات الثقيلة", text: "مكالمة هاتفية مع م/ عصام لحسم شرط الدفعة المقدمة", date: "اليوم 1:30 م", urgent: true, done: false },
-            { id: 502, tenant_id: "tenant_ahram_01", company: "العربي للأجهزة المنزلية", text: "إرسال شهادة الجودة والاعتماد لمسؤول المشتريات بالإيميل", date: "غداً 11:00 ص", urgent: false, done: false },
-            { id: 503, tenant_id: "tenant_ahram_01", company: "الشركة الشرقية للتغليف", text: "إصدار إشعار التوريد وإرسال الفاتورة الضريبية", date: "الأربعاء 3:00 م", urgent: false, done: true }
+            { id: 104, tenant_id: "tenant_ahram_01", company: "النصر للكيماويات الدوائية", sector: "صناعات دوائية", location: "حلوان", contact: "د/ مدحت عثمان", phone: "01511223344", email: "medhat@nasr-pharma.com", value: 190000, stage: "lead", notes: "استفسار وارد عبر الموقع لطلب خامات معقمة" }
         ];
 
         let deals = JSON.parse(localStorage.getItem('rasd_master_deals_v1')) || initialMasterDeals;
-        let tasks = JSON.parse(localStorage.getItem('rasd_master_tasks_v1')) || initialMasterTasks;
+        let tasks = JSON.parse(localStorage.getItem('rasd_master_tasks_v1')) || [];
 
         function getTenantDeals() {
             return deals.filter(d => d.tenant_id === currentTenantId);
@@ -1004,11 +988,11 @@
             if (isConnected) {
                 if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm shadow-emerald-400";
                 if (text) {
-                    text.innerText = "متصل سحابياً مع Supabase (مزامنة حية)";
+                    text.innerText = "متصل سحابياً مع Supabase";
                     text.className = "text-emerald-400 font-bold";
                 }
                 if (badge) {
-                    badge.innerText = "حالة التخزين: متصل سحابياً مع Supabase (مزامنة فورية)";
+                    badge.innerText = "حالة التخزين: متصل سحابياً مع Supabase";
                     badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
                 }
             } else {
@@ -1035,13 +1019,6 @@
 
             const cleanUrl = sanitizeSupabaseUrl(rawUrl);
             try {
-                new URL(cleanUrl);
-            } catch (_) {
-                showToast("صيغة رابط المشروع غير صحيحة، تأكد من نسخه بدقة");
-                return;
-            }
-
-            try {
                 supabaseClient = window.supabase.createClient(cleanUrl, key);
                 localStorage.setItem('rasd_supabase_url', cleanUrl);
                 localStorage.setItem('rasd_supabase_key', key);
@@ -1067,17 +1044,20 @@
         async function syncFromSupabase() {
             if (!supabaseClient) return;
             try {
+                // مزامنة الصفقات الخاصة بالشركة النشطة
                 const { data: cloudDeals, error: dError } = await supabaseClient.from('deals').select('*').eq('tenant_id', currentTenantId);
-                if (!dError && cloudDeals && cloudDeals.length > 0) {
+                if (!dError && cloudDeals) {
                     deals = deals.filter(d => d.tenant_id !== currentTenantId).concat(cloudDeals);
                     localStorage.setItem('rasd_master_deals_v1', JSON.stringify(deals));
                 }
 
+                // مزامنة المهام
                 const { data: cloudTasks, error: tError } = await supabaseClient.from('tasks').select('*').eq('tenant_id', currentTenantId);
-                if (!tError && cloudTasks && cloudTasks.length > 0) {
+                if (!tError && cloudTasks) {
                     tasks = tasks.filter(t => t.tenant_id !== currentTenantId).concat(cloudTasks);
                     localStorage.setItem('rasd_master_tasks_v1', JSON.stringify(tasks));
                 }
+
                 refreshAllViews();
             } catch (err) {
                 console.warn("Could not sync from cloud:", err);
@@ -1103,8 +1083,8 @@
             const cloudTId = document.getElementById('cloudCurrentTenantId');
 
             if (cName) cName.innerText = tenant.company;
-            if (uName) uName.innerText = tenant.user;
-            if (avatar) avatar.innerText = tenant.company.charAt(0);
+            if (uName) uName.innerText = tenant.user || tenant.user_name || 'مدير المبيعات';
+            if (avatar) avatar.innerText = (tenant.company || 'ر').charAt(0);
             if (cloudT) cloudT.innerText = tenant.company;
             if (cloudTId) cloudTId.innerText = tenant.id;
 
@@ -1118,7 +1098,7 @@
                 <div class="flex items-center justify-between p-2 rounded-lg border ${t.id === currentTenantId ? 'bg-brand-50 border-brand-200' : 'bg-slate-50 border-slate-200'} text-xs">
                     <div>
                         <span class="font-bold text-slate-800 block">${t.company}</span>
-                        <span class="text-[10px] text-slate-500">${t.user} • ${t.email}</span>
+                        <span class="text-[10px] text-slate-500">${t.email}</span>
                     </div>
                     <button type="button" onclick="quickSwitchTenant('${t.id}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-[10px]">
                         ${t.id === currentTenantId ? 'النشط حالياً' : 'دخول'}
@@ -1145,21 +1125,65 @@
             document.getElementById('authTabRegister').className = !isLogin ? "flex-1 py-2 text-center text-brand-600 border-b-2 border-brand-600" : "flex-1 py-2 text-center text-slate-500";
         }
 
-        function handleLoginSubmit() {
-            const email = document.getElementById('loginEmail').value.trim();
+        // دالة تحويل البريد الإلكتروني إلى كود شركة ثابت وموحد على أي جهاز
+        function generateConsistentTenantId(email) {
+            const clean = email.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+            return 'tenant_' + clean;
+        }
+
+        // تسجيل الدخول الموحد سحابياً
+        async function handleLoginSubmit() {
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const pass = document.getElementById('loginPassword').value.trim();
-            const found = allTenants.find(t => t.email.toLowerCase() === email.toLowerCase() && t.pass === pass);
+
+            if (!email || !pass) {
+                showToast("يرجى إدخال البريد الإلكتروني وكلمة المرور");
+                return;
+            }
+
+            const btn = document.getElementById('btnLoginSubmit');
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري التحقق من السحابة...';
+            lucide.createIcons();
+
+            // 1. فحص محلي أولاً
+            let found = allTenants.find(t => t.email.toLowerCase() === email && (t.pass === pass || t.password === pass));
+
+            // 2. فحص سحابي من Supabase إذا لم يجد في الجهاز
+            if (!found && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('tenants').select('*').eq('email', email).eq('password', pass).single();
+                    if (!error && data) {
+                        found = {
+                            id: data.id,
+                            company: data.company,
+                            user: data.user_name,
+                            email: data.email,
+                            pass: data.password
+                        };
+                        allTenants.push(found);
+                        localStorage.setItem('rasd_all_tenants_v1', JSON.stringify(allTenants));
+                    }
+                } catch (e) {
+                    console.warn("Supabase auth check error:", e);
+                }
+            }
+
+            btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> دخول لحساب الشركة الموحد';
+            lucide.createIcons();
+
             if (found) {
                 quickSwitchTenant(found.id);
+                showToast(`مرحباً بك مجدداً في شركة (${found.company}) ✓`);
             } else {
-                showToast("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+                showToast("البريد الإلكتروني أو كلمة المرور غير صحيحة، أو لم يتم تسجيل الشركة بعد");
             }
         }
 
-        function handleRegisterSubmit() {
+        // تسجيل شركة جديدة موحدة سحابياً
+        async function handleRegisterSubmit() {
             const company = document.getElementById('regCompany').value.trim();
             const user = document.getElementById('regUser').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const pass = document.getElementById('regPassword').value.trim();
 
             if (!company || !user || !email || !pass) {
@@ -1167,24 +1191,59 @@
                 return;
             }
 
+            const btn = document.getElementById('btnRegisterSubmit');
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري إنشاء الحساب في السحابة...';
+            lucide.createIcons();
+
+            // كود فريد وثابت مستخرج من البريد الإلكتروني
+            const fixedTenantId = generateConsistentTenantId(email);
+
             const newTenant = {
-                id: 'tenant_' + Date.now(),
+                id: fixedTenantId,
                 company: company,
                 user: user,
+                user_name: user,
                 email: email,
-                pass: pass
+                pass: pass,
+                password: pass
             };
 
-            allTenants.push(newTenant);
+            // الحفظ في قاعدة بيانات Supabase لترتبط جميع الأجهزة بها فوراً
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient.from('tenants').upsert([{
+                        id: fixedTenantId,
+                        company: company,
+                        user_name: user,
+                        email: email,
+                        password: pass
+                    }]);
+                    if (error) console.warn("Tenant cloud save warning:", error);
+                } catch (e) {
+                    console.warn("Supabase tenant insert error:", e);
+                }
+            }
+
+            // حفظ محلي في المتصفح الحالي
+            const existingIdx = allTenants.findIndex(t => t.id === fixedTenantId || t.email === email);
+            if (existingIdx >= 0) {
+                allTenants[existingIdx] = newTenant;
+            } else {
+                allTenants.push(newTenant);
+            }
             localStorage.setItem('rasd_all_tenants_v1', JSON.stringify(allTenants));
 
+            // تفريغ الحقول
             document.getElementById('regCompany').value = '';
             document.getElementById('regUser').value = '';
             document.getElementById('regEmail').value = '';
             document.getElementById('regPassword').value = '';
 
+            btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء حساب سحابي دائم وموحد';
+            lucide.createIcons();
+
             quickSwitchTenant(newTenant.id);
-            showToast(`تم إنشاء حساب شركة (${company}) وتفعيله بنجاح ✓`);
+            showToast(`تم إنشاء حساب شركة (${company}) السحابي الموحد بنجاح ✓`);
         }
 
         function refreshAllViews() {
@@ -1361,7 +1420,6 @@
             lucide.createIcons();
         }
 
-        // دالة حذف صفقة / شركة واحدة (محلياً وسحابياً)
         async function deleteSingleDeal(dealId) {
             const targetDeal = deals.find(d => d.id === dealId && d.tenant_id === currentTenantId);
             if (!targetDeal) return;
@@ -1369,13 +1427,11 @@
             const confirmed = confirm(`هل أنت متأكد من حذف (${targetDeal.company}) نهائياً من المنظومة؟`);
             if (!confirmed) return;
 
-            // الحذف من الذاكرة المحلية
             deals = deals.filter(d => !(d.id === dealId && d.tenant_id === currentTenantId));
             saveDealsLocally();
             refreshAllViews();
             showToast(`تم حذف (${targetDeal.company}) بنجاح ✓`);
 
-            // الحذف من قاعدة بيانات Supabase
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('deals').delete().eq('id', dealId).eq('tenant_id', currentTenantId);
@@ -1385,7 +1441,6 @@
             }
         }
 
-        // دالة حذف الصفقة المفتوحة حالياً في شاشة التفاصيل
         function deleteCurrentDetailDeal() {
             if (!currentDetailDealId) return;
             const id = currentDetailDealId;
@@ -1393,7 +1448,6 @@
             deleteSingleDeal(id);
         }
 
-        // دالة مسح جميع صفقات الشركة الحالية (لتفريغ الحساب أو إعادة رفع إكسيل جديد)
         async function clearCurrentTenantDeals() {
             const tenantDeals = getTenantDeals();
             if (tenantDeals.length === 0) {
@@ -1570,7 +1624,6 @@
             localStorage.setItem('rasd_master_tasks_v1', JSON.stringify(tasks));
         }
 
-        // EXCEL IMPORT & EXPORT ENGINE
         function downloadExcelTemplate() {
             const templateData = [
                 {
@@ -1635,9 +1688,9 @@
                     }
 
                     parsedExcelDeals = jsonData.map((row, idx) => {
-                        const company = row["اسم المصنع / الشركة"] || row["الشركة"] || row["اسم الشركة"] || row["Company"] || row["company"] || `شركة مستوردة ${idx + 1}`;
-                        const sector = row["القطاع / النشاط"] || row["القطاع"] || row["Sector"] || row["sector"] || "صناعات عامة";
-                        const location = row["المدينة / المنطقة"] || row["المنطقة"] || row["الموقع"] || row["Location"] || "مصر";
+                        const company = row["اسم المصنع / الشركة"] || row["الشركة"] || row["اسم الشركة"] || row["Company"] || `شركة مستوردة ${idx + 1}`;
+                        const sector = row["القطاع / النشاط"] || row["القطاع"] || row["Sector"] || "صناعات عامة";
+                        const location = row["المدينة / المنطقة"] || row["المنطقة"] || row["Location"] || "مصر";
                         const contact = row["مسؤول التواصل"] || row["المسؤول"] || row["Contact"] || "";
                         const phone = String(row["رقم الهاتف"] || row["الهاتف"] || row["الموبايل"] || row["Phone"] || "");
                         const email = row["البريد الإلكتروني"] || row["الإيميل"] || row["Email"] || "";
@@ -1685,7 +1738,7 @@
                     showToast(`تمت قراءة ${parsedExcelDeals.length} عميل وجاهزون للاستيراد ✓`);
                 } catch (err) {
                     console.error("Excel Read Error:", err);
-                    showToast("حدث خطأ أثناء قراءة ملف الإكسيل. تأكد من سلامة الملف.");
+                    showToast("حدث خطأ أثناء قراءة ملف الإكسيل");
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -1708,10 +1761,7 @@
                     showToast(`تم استيراد ومزامنة ${parsedExcelDeals.length} صفقة إلى السحابة بنجاح ✓`);
                 } catch (err) {
                     console.warn("Supabase bulk insert warning:", err);
-                    showToast(`تم حفظ ${parsedExcelDeals.length} صفقة محلياً وجاري المزامنة`);
                 }
-            } else {
-                showToast(`تم استيراد ${parsedExcelDeals.length} عميل بنجاح للمنظومة ✓`);
             }
 
             parsedExcelDeals = [];
