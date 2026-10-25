@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة رصد الذكية | نظام إدارة المبيعات الصناعية والتجارية</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#1e40af',
+                            600: '#1d4ed8',
+                            700: '#1e3a8a',
+                            800: '#172554',
+                            accent: '#f97316'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .badge-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand & Active Company Display with custom "RASD" Vector Logo -->
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2.5">
+                        <!-- Custom Modern SVG Logo for RASD (Eye Radar + Target Growth) -->
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-800 via-brand-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-brand-600/30 ring-2 ring-brand-100">
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" stroke-opacity="0.3"/>
+                                <path d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
+                                <path d="M14.5 9.5L19 5" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="19" cy="5" r="1.5" fill="#38bdf8"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="font-extrabold text-xl text-slate-900 tracking-tight flex items-center gap-1.5">
+                                رَصَــد <span class="text-xs font-mono font-bold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-100">RASD</span>
+                                <span class="bg-gradient-to-r from-brand-600 to-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-xs">SaaS</span>
+                            </span>
+                            <p class="text-[11px] text-slate-500 font-medium">منظومة رصد وتحليل المبيعات الذكية للمصانع والشركات</p>
+                        </div>
+                    </div>
+
+                    <!-- Active Tenant Badge & Switcher Trigger -->
+                    <div class="hidden md:flex items-center gap-2.5 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs">
+                        <i data-lucide="building-2" class="w-4 h-4 text-brand-600"></i>
+                        <span class="text-slate-500">الشركة النشطة:</span>
+                        <span id="currentCompanyPill" class="font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">مصنع الأهرام للمعدات</span>
+                        <span id="tenantBadgeId" class="text-[10px] font-mono text-brand-700 bg-brand-50 px-1.5 py-0.5 rounded">ID: ahram</span>
+                    </div>
+                </div>
+
+                <!-- Right Actions & User Profile -->
+                <div class="flex items-center gap-3">
+                    <button onclick="openModal('newLeadModal')" class="bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition active:scale-95">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">إضافة صفقة جديدة</span>
+                    </button>
+
+                    <!-- Cloud Connection Config Button -->
+                    <button onclick="openModal('cloudConfigModal')" title="إعدادات الربط السحابي بقاعدة البيانات" class="p-2 text-slate-600 hover:text-brand-600 hover:bg-slate-100 rounded-lg relative transition">
+                        <i data-lucide="database" class="w-5 h-5"></i>
+                        <span id="cloudStatusDot" class="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full"></span>
+                    </button>
+
+                    <!-- Notifications Dropdown Trigger -->
+                    <div class="relative">
+                        <button onclick="toggleNotifications()" class="p-2 text-slate-600 hover:text-brand-600 hover:bg-slate-100 rounded-lg relative transition">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-accent rounded-full badge-pulse"></span>
+                        </button>
+                        <!-- Notifications Popover -->
+                        <div id="notificationsBox" class="hidden absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
+                            <div class="px-4 py-2 border-b border-slate-100 font-bold text-xs text-slate-700 flex justify-between items-center">
+                                <span>تنبيهات ومتابعات اليوم</span>
+                                <span class="bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full">مهام معلقة</span>
+                            </div>
+                            <div id="notificationsContainer" class="divide-y divide-slate-100 text-xs">
+                                <!-- Populated dynamically based on tenant -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Pill & Switch / Logout Menu -->
+                    <div class="flex items-center gap-2 border-r border-slate-200 pr-3">
+                        <div id="userAvatar" class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs">
+                            أح
+                        </div>
+                        <div class="hidden lg:block text-right">
+                            <div id="currentUserName" class="text-xs font-bold text-slate-800">م/ أحمد محمود</div>
+                            <div id="currentUserRole" class="text-[10px] text-emerald-600 font-medium">مدير الحساب</div>
+                        </div>
+                        <!-- Logout / Change Account Button -->
+                        <button onclick="handleLogout()" title="تسجيل الخروج من الحساب" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition flex items-center gap-1 text-xs font-medium">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">خروج</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <nav class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-brand-700 bg-brand-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span>لوحة التحكم والمؤشرات</span>
+                </button>
+                <button onclick="switchTab('pipeline')" id="nav-pipeline" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="kanban" class="w-5 h-5"></i>
+                    <span>مسار الصفقات (Kanban)</span>
+                    <span class="mr-auto bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full" id="totalDealsBadge">6</span>
+                </button>
+                <button onclick="switchTab('leads')" id="nav-leads" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="factory" class="w-5 h-5"></i>
+                    <span>دليل الشركات والعملاء</span>
+                </button>
+                <button onclick="switchTab('aiAssistant')" id="nav-aiAssistant" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 transition group">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-purple-600"></i>
+                        <span>مساعد المبيعات الذكي</span>
+                    </div>
+                    <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">AI</span>
+                </button>
+                <button onclick="switchTab('tasks')" id="nav-tasks" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="calendar-check-2" class="w-5 h-5"></i>
+                    <span>المهام والمتابعات</span>
+                </button>
+                <button onclick="switchTab('settings')" id="nav-settings" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    <span>عزل البيانات والصلاحيات</span>
+                </button>
+            </nav>
+
+            <!-- Quick WhatsApp Integration Banner -->
+            <div class="mt-4 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/60 border border-emerald-200">
+                <div class="flex items-center gap-2 text-emerald-800 font-bold text-xs mb-1">
+                    <i data-lucide="message-square" class="w-4 h-4 text-emerald-600"></i>
+                    <span>تكامل WhatsApp Business</span>
+                </div>
+                <p class="text-xs text-emerald-700 mb-3 leading-relaxed">
+                    إرسال عروض الأسعار والتنبيهات المباشرة إلى هواتف العملاء بنقرة واحدة.
+                </p>
+                <button onclick="openWhatsAppQuickModal()" class="w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs py-2 px-3 rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 active:scale-95">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>إرسال رسالة واتساب لعميل</span>
+                </button>
+            </div>
+
+            <!-- Quick Email Integration Banner -->
+            <div class="mt-3 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100/60 border border-blue-200">
+                <div class="flex items-center gap-2 text-blue-900 font-bold text-xs mb-1">
+                    <i data-lucide="mail" class="w-4 h-4 text-blue-600"></i>
+                    <span>المراسلات الرسمية (Email)</span>
+                </div>
+                <p class="text-xs text-blue-800 mb-3 leading-relaxed">
+                    إرسال عروض الأسعار والمواصفات المعتمدة عبر Gmail أو برنامج البريد بضغطة زر.
+                </p>
+                <button onclick="openEmailQuickModal()" class="w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs py-2 px-3 rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 active:scale-95">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>إرسال إيميل رسمي لعميل</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 min-w-0">
+            
+            <!-- TAB 1: DASHBOARD -->
+            <section id="tab-dashboard" class="space-y-6">
+                <!-- Egyptian Currency KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 mb-2">
+                            <span class="text-xs font-medium">قيمة الصفقات المتوقعة</span>
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <i data-lucide="coins" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-900" id="kpi-pipeline-val">4,850,000 ج.م</div>
+                        <div class="mt-2 text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                            <span>+18.4% عن الشهر السابق</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 mb-2">
+                            <span class="text-xs font-medium">مبيعات مغلقة (الشهر الحالي)</span>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-900" id="kpi-won-val">1,420,000 ج.م</div>
+                        <div class="mt-2 text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                            <span>تم تحقيق 85% من مستهدف الربع</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 mb-2">
+                            <span class="text-xs font-medium">الشركات المستهدفة في المسار</span>
+                            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                <i data-lucide="building" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-900">12 مصنع وشركة</div>
+                        <div class="mt-2 text-[11px] text-slate-500">
+                            العاشر، 6 أكتوبر، برج العرب
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between text-slate-500 mb-2">
+                            <span class="text-xs font-medium">نسبة إغلاق العروض (Win Rate)</span>
+                            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                                <i data-lucide="percent" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-900">32.5%</div>
+                        <div class="mt-2 text-[11px] text-blue-600 font-medium">
+                            متوسط دورة البيع: 28 يوم
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Snapshot & Urgent Action Items -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Urgent High-Priority Deals -->
+                    <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">صفقات تتطلب إجراء فوري اليوم</h3>
+                                <p class="text-xs text-slate-500">عروض أسعار معلقة أو مفاوضات شروط دفع بانتظار الرد</p>
+                            </div>
+                            <span class="bg-rose-50 text-rose-700 text-xs px-2.5 py-1 rounded-full font-bold">متابعة هامة</span>
+                        </div>
+
+                        <div class="divide-y divide-slate-100" id="urgentDealsList">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+
+                    <!-- AI Insights Widget -->
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 text-purple-300 text-xs font-bold mb-2">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                <span>تحليلات المبيعات الذكية (Gemini AI)</span>
+                            </div>
+                            <h4 class="font-bold text-lg mb-2">ملاحظة أسبوعية لقطاع الصناعات</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                                معظم الاعتراضات في عروض أسعار هذا الأسبوع في المنطقة الصناعية بالعاشر من رمضان تتعلق بـ <strong class="text-amber-300">شروط السداد (طلب 60 يوم أجل)</strong>. نوصي بتقديم خصم 3% للكاش أو تقسيط التوريد لتسريع توقيع العقود.
+                            </p>
+                            <div class="p-3 bg-white/10 rounded-lg text-xs space-y-2 border border-white/10">
+                                <div class="flex justify-between items-center text-slate-200">
+                                    <span>العملاء الأكثر جاهزية للتعاقد:</span>
+                                    <span class="font-bold text-white">2 شركات</span>
+                                </div>
+                                <div class="flex justify-between items-center text-slate-200">
+                                    <span>عروض بحاجة لإعادة صياغة:</span>
+                                    <span class="font-bold text-amber-300">1 عرض</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="switchTab('aiAssistant')" class="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white text-xs py-2.5 rounded-lg font-bold transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="bot" class="w-4 h-4"></i>
+                            <span>فتح محلل الاستفسارات الذكي</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: PIPELINE (KANBAN) -->
+            <section id="tab-pipeline" class="hidden space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">مسار الصفقات البيعية B2B</h2>
+                        <p class="text-xs text-slate-500">حرّك البطاقات أو اضغط عليها لنقل الفرصة بين مراحل التفاوض المصرية</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openModal('newLeadModal')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-2 rounded-lg font-medium flex items-center gap-1.5 transition">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            صفقة جديدة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Kanban Columns Container -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4">
+                    
+                    <!-- Column 1: عميل جديد وتأهيل -->
+                    <div class="bg-slate-100/80 rounded-xl p-3 border border-slate-200 min-h-[450px] flex flex-col">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                                <h4 class="font-bold text-xs text-slate-800">1. عميل جديد وتأهيل</h4>
+                            </div>
+                            <span class="bg-white text-slate-600 text-xs px-2 py-0.5 rounded-md font-semibold" id="col-count-lead">0</span>
+                        </div>
+                        <div id="col-lead" class="space-y-3 flex-1"></div>
+                    </div>
+
+                    <!-- Column 2: عرض سعر ومواصفات -->
+                    <div class="bg-slate-100/80 rounded-xl p-3 border border-slate-200 min-h-[450px] flex flex-col">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                <h4 class="font-bold text-xs text-slate-800">2. إرسال عرض أسعار</h4>
+                            </div>
+                            <span class="bg-white text-slate-600 text-xs px-2 py-0.5 rounded-md font-semibold" id="col-count-proposal">0</span>
+                        </div>
+                        <div id="col-proposal" class="space-y-3 flex-1"></div>
+                    </div>
+
+                    <!-- Column 3: تفاوض وشروط دفع -->
+                    <div class="bg-slate-100/80 rounded-xl p-3 border border-slate-200 min-h-[450px] flex flex-col">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                                <h4 class="font-bold text-xs text-slate-800">3. تفاوض وتعاقد</h4>
+                            </div>
+                            <span class="bg-white text-slate-600 text-xs px-2 py-0.5 rounded-md font-semibold" id="col-count-negotiation">0</span>
+                        </div>
+                        <div id="col-negotiation" class="space-y-3 flex-1"></div>
+                    </div>
+
+                    <!-- Column 4: تم التعاقد (Won) -->
+                    <div class="bg-slate-100/80 rounded-xl p-3 border border-slate-200 min-h-[450px] flex flex-col">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <h4 class="font-bold text-xs text-slate-800">4. تم الإغلاق بنجاح</h4>
+                            </div>
+                            <span class="bg-white text-slate-600 text-xs px-2 py-0.5 rounded-md font-semibold" id="col-count-won">0</span>
+                        </div>
+                        <div id="col-won" class="space-y-3 flex-1"></div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- TAB 3: LEADS & COMPANIES DIRECTORY -->
+            <section id="tab-leads" class="hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">سجل المصانع والشركات المستهدفة</h2>
+                        <p class="text-xs text-slate-500">مع ميزة التدقيق والتحقق من السجل التجاري والبيانات الرسمية</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Automated Enrichment Trigger Button -->
+                        <button onclick="enrichLeadDemo()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition border border-slate-200">
+                            <i data-lucide="file-check-2" class="w-4 h-4 text-brand-600"></i>
+                            <span>استعلام آلي بالسجل التجاري</span>
+                        </button>
+                        <button onclick="openModal('newLeadModal')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-2 rounded-lg font-medium flex items-center gap-1.5 transition">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>تسجيل شركة جديدة</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Filter & Search -->
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="p-3 border-b border-slate-200 flex flex-col sm:flex-row items-center gap-3">
+                        <div class="relative flex-1 w-full">
+                            <i data-lucide="search" class="w-4 h-4 absolute right-3 top-3 text-slate-400"></i>
+                            <input type="text" id="leadSearchInput" onkeyup="filterLeadsTable()" placeholder="ابحث باسم المصنع، المسؤول، أو المنطقة الصناعية..." class="w-full pr-9 pl-3 py-2 bg-slate-50 rounded-lg text-xs border border-slate-200 focus:outline-none focus:border-brand-500 focus:bg-white">
+                        </div>
+                        <select id="sectorFilter" onchange="filterLeadsTable()" class="w-full sm:w-auto text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-medium text-slate-700 focus:outline-none">
+                            <option value="all">جميع القطاعات والأنشطة</option>
+                            <!-- Dynamically populated based on active leads -->
+                        </select>
+                    </div>
+
+                    <!-- Companies Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3.5">اسم المصنع / الشركة</th>
+                                    <th class="p-3.5">الموقع الصناعي</th>
+                                    <th class="p-3.5">المسؤول وبيانات الاتصال</th>
+                                    <th class="p-3.5">قيمة الصفقة</th>
+                                    <th class="p-3.5">حالة المتابعة</th>
+                                    <th class="p-3.5 text-center">إجراء فوري</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadsTableBody" class="divide-y divide-slate-100">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: AI SALES ASSISTANT -->
+            <section id="tab-aiAssistant" class="hidden space-y-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-9 h-9 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                            <i data-lucide="bot" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900">مساعد المبيعات الذكي المدعوم بـ Gemini AI</h2>
+                            <p class="text-xs text-slate-500">الصق رسالة العميل، استفساره، أو اعتراضه؛ وسيقوم المساعد بتحليل النية وصياغة رد بيعي احترافي مصري والخطوة التالية.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Input Section -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-slate-700">رسالة العميل أو استفسار الواتساب:</label>
+                            <div class="flex gap-1.5">
+                                <button type="button" onclick="loadSampleMessage(1)" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded">مثال 1: اعتراض دفع</button>
+                                <button type="button" onclick="loadSampleMessage(2)" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded">مثال 2: طلب مواصفات</button>
+                            </div>
+                        </div>
+
+                        <textarea id="aiInputPrompt" rows="5" class="w-full text-xs p-3 border border-slate-300 rounded-lg focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600" placeholder="مثال: يا هندسة بالنسبة لعرض السعر بتاع الموتورات... السعر كويس بس محتاجين التوريد في العاشر من رمضان والدفع بعد 60 يوم من الاستلام، إيه رأيك؟"></textarea>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">لهجة الرد المقترحة:</label>
+                                <select id="aiTone" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50">
+                                    <option value="b2b_egyptian">عامية مصرية مهنية راقية (مفضلة في مصر)</option>
+                                    <option value="formal_arabic">عربية فصحى رسمية للشركات الكبرى</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">الهدف البيعي:</label>
+                                <select id="aiGoal" class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50">
+                                    <option value="close">تسريع التعاقد وتقليل مدة الآجل</option>
+                                    <option value="meeting">تحديد موعد زيارة للمصنع</option>
+                                    <option value="negotiate">تقديم حل وسط لشروط الدفع</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="analyzeMessageWithAI()" id="aiSubmitBtn" class="w-full bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white font-bold text-xs py-3 rounded-lg flex items-center justify-center gap-2 shadow-md transition active:scale-[0.99]">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            <span>تحليل الرسالة وتوليد الرد الذكي الآن</span>
+                        </button>
+                    </div>
+
+                    <!-- AI Output Section -->
+                    <div id="aiOutputCard" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between relative">
+                        <div id="aiOutputPlaceholder" class="flex flex-col items-center justify-center h-64 text-slate-400 text-center">
+                            <i data-lucide="cpu" class="w-12 h-12 stroke-1 mb-2 text-slate-300"></i>
+                            <p class="text-xs">في انتظار إدخال استفسار العميل لبدء التحليل...</p>
+                        </div>
+
+                        <!-- Actual Result (Initially Hidden) -->
+                        <div id="aiResultContent" class="hidden space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                                    نتيجة التحليل البيعي
+                                </span>
+                                <span id="intentBadge" class="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold">نية شراء عالية جداً</span>
+                            </div>
+
+                            <!-- Analysis Details -->
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1">
+                                <p class="font-bold text-slate-800">تحليل الموقف والاعتراض:</p>
+                                <p id="aiAnalysisText" class="text-slate-600 leading-relaxed"></p>
+                            </div>
+
+                            <!-- Drafted Response -->
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-slate-700">مسودة الرد المقترح (جاهز للإرسال على WhatsApp):</span>
+                                    <button onclick="copyDraftToClipboard()" class="text-brand-600 hover:text-brand-800 text-[11px] flex items-center gap-1 font-semibold">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        <span>نسخ الرد</span>
+                                    </button>
+                                </div>
+                                <div id="aiDraftResponse" class="p-3 bg-purple-50/70 border border-purple-200 rounded-lg text-xs text-slate-800 leading-relaxed whitespace-pre-line font-normal">
+                                </div>
+                            </div>
+
+                            <!-- Recommended Next Action -->
+                            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-start gap-2">
+                                <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    <span class="font-bold">الخطوة القادمة المقترحة في الـ CRM:</span>
+                                    <p id="aiRecommendedAction" class="mt-0.5 text-slate-700"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: TASKS & FOLLOW-UPS -->
+            <section id="tab-tasks" class="hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">جدول المهام والمتابعات الميدانية</h2>
+                        <p class="text-xs text-slate-500">لا تفوت أي موعد تسليم عرض أو زيارة مصنع لضمان إغلاق الصفقة</p>
+                    </div>
+                    <button onclick="openModal('newTaskModal')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition">
+                        <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                        <span>إضافة مهمة جديدة</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                    <div class="space-y-3" id="tasksListContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: MULTI-TENANT & PERMISSIONS EXPLAINER -->
+            <section id="tab-settings" class="hidden space-y-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 mb-1">هيكلية عزل بيانات الشركات وحسابات الدخول (Multi-Tenancy)</h2>
+                        <p class="text-xs text-slate-500">كيف نضمن بالدليل العملي أن كل مستخدم يسجل بإيميله وباسورده ولا يرى إلا بيانات شركته فقط.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openModal('authModal')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs px-3.5 py-2 rounded-lg font-bold flex items-center gap-1.5 shadow-sm transition">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            <span>تجربة تسجيل دخول بشركة أخرى</span>
+                        </button>
+                        <button onclick="openModal('cloudConfigModal')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 border border-slate-200 transition">
+                            <i data-lucide="database" class="w-4 h-4 text-brand-600"></i>
+                            <span>ربط Supabase السحابي</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Isolation Tester Box -->
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs space-y-2">
+                    <div class="flex items-center gap-2 text-amber-900 font-bold text-sm">
+                        <i data-lucide="shield-alert" class="w-5 h-5 text-amber-600"></i>
+                        <span>اختبار عزل البيانات الفعلي في هذه الجلسة</span>
+                    </div>
+                    <p class="text-amber-800 leading-relaxed">
+                        أنت الآن مسجل الدخول باسم: <strong id="liveSessionUser" class="text-slate-900">م/ أحمد محمود</strong> تابع لشركة: <strong id="liveSessionCompany" class="text-slate-900">مصنع الأهرام</strong>. كل عميل أو صفقة تضيفها الآن ستأخذ آلياً المعرف <code id="liveSessionTenant" class="bg-white px-1.5 py-0.5 rounded border border-amber-300 font-mono text-brand-700">ahram</code>. إذا قمت بالتبديل إلى حساب "شركة الدلتا" أو أنشأت شركة جديدة، ستختفي بيانات الأهرام تماماً وتظهر صفقات الشركة الأخرى فقط.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold mb-2">
+                            1
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm">التسجيل وتعيين الشركة (Tenant Assignment)</h4>
+                        <p class="text-slate-600 leading-relaxed">
+                            عندما تسجل شركة جديدة، يتم إنشاء <code class="bg-slate-100 px-1 py-0.5 rounded text-brand-600">company_id</code> فريد لها. وعندما يقوم صاحب الشركة بإنشاء حسابات لمناديب المبيعات، يتم ربط إيميلاتهم بنفس الـ ID تلقائياً.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold mb-2">
+                            2
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm">عزل أمان مستوى الصف (Supabase RLS)</h4>
+                        <p class="text-slate-600 leading-relaxed">
+                            في قاعدة بيانات PostgreSQL السحابية، نقوم بوضع شرط وحيد: لا يتم جلب أي سطر بيانات إلا إذا تطابق كود الشركة مع كود الشركة الموجود في التوكن المشفر للمستخدم (<code class="bg-slate-100 px-1 py-0.5 rounded">auth.jwt()</code>).
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold mb-2">
+                            3
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm">مستويات الصلاحيات (Roles)</h4>
+                        <p class="text-slate-600 leading-relaxed">
+                            <strong class="text-slate-800">المدير (Admin):</strong> يرى كل صفقات مصنعه وإجمالي المبيعات.<br>
+                            <strong class="text-slate-800">مندوب المبيعات (Sales Rep):</strong> يرى فقط العملاء المخصصين له داخل نفس المصنع.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- SQL Migration Snippet -->
+                <div class="bg-slate-900 text-white p-5 rounded-xl border border-slate-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="font-bold text-xs text-brand-100 flex items-center gap-1.5">
+                            <i data-lucide="terminal" class="w-4 h-4"></i>
+                            كود إنشاء العزل في Supabase (SQL Script جاهز للنسخ)
+                        </span>
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">Row Level Security</span>
+                    </div>
+                    <pre class="bg-black/50 p-3 rounded-lg text-[11px] font-mono text-emerald-400 overflow-x-auto text-left" dir="ltr">
+-- 1. تفعيل العزل على جدول الصفقات
+ALTER TABLE deals ENABLE ROW LEVEL SECURITY;
+
+-- 2. قاعدة أمان تمنع أي شركة من رؤية صفقات غيرها
+CREATE POLICY "Strict Tenant Data Isolation" 
+ON public.deals
+FOR ALL 
+USING (tenant_id = (auth.jwt() -> 'app_metadata' ->> 'tenant_id'));</pre>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: ADD NEW DEAL / LEAD -->
+    <div id="newLeadModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-brand-600"></i>
+                    <span>إضافة صفقة / عميل صناعي جديد</span>
+                </h3>
+                <button onclick="closeModal('newLeadModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="leadForm" onsubmit="handleCreateLead(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">اسم المصنع أو الشركة *</label>
+                    <input type="text" id="m_company" required placeholder="مثال: مصنع النور للكابلات والبلاستيك" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:bg-white">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block font-semibold text-slate-700">المنطقة / المحافظة / العنوان *</label>
+                            <span class="text-[10px] text-brand-600 font-medium">اكتب أي مكان بحرية</span>
+                        </div>
+                        <input list="locationsList" type="text" id="m_location" required placeholder="اكتب أو اختر (مثال: قويسنا الصناعية، المعادي، برج العرب...)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:bg-white">
+                        <datalist id="locationsList">
+                            <option value="العاشر من رمضان"></option>
+                            <option value="السادس من أكتوبر"></option>
+                            <option value="مدينة السادات"></option>
+                            <option value="برج العرب الجديدة"></option>
+                            <option value="مدينة بدر"></option>
+                            <option value="مدينة العبور"></option>
+                            <option value="قويسنا الصناعية"></option>
+                            <option value="كوم أوشيم (الفيوم)"></option>
+                            <option value="بني سويف (بياض العرب)"></option>
+                            <option value="الصالحية الجديدة"></option>
+                            <option value="المنطقة الحرة بالإسكندرية"></option>
+                            <option value="شبرا الخيمة والخانكة"></option>
+                            <option value="المنطقة الاقتصادية بقناة السويس"></option>
+                            <option value="التجمع الخامس والقاهرة الجديدة"></option>
+                            <option value="مصر الجديدة ومدينة نصر"></option>
+                        </datalist>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block font-semibold text-slate-700">القطاع / مجال النشاط *</label>
+                            <span class="text-[10px] text-brand-600 font-medium">اكتب أي مجال</span>
+                        </div>
+                        <input list="sectorsList" type="text" id="m_sector" required placeholder="اكتب أو اختر (مثال: ملابس جاهزة، برمجة، مقاولات، أدوية...)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:bg-white">
+                        <datalist id="sectorsList">
+                            <option value="صناعات هندسية ومعدات"></option>
+                            <option value="صناعات غذائية ومشروبات"></option>
+                            <option value="كيماويات وأسمدة وبلاستيك"></option>
+                            <option value="غزل ونسيج وملابس جاهزة"></option>
+                            <option value="أدوية ومستلزمات طبية"></option>
+                            <option value="مواد بناء ومقاولات وتشييد"></option>
+                            <option value="طباعة وتغليف وكرتون"></option>
+                            <option value="تكنولوجيا معلومات وبرمجيات"></option>
+                            <option value="أخشاب وأثاث"></option>
+                            <option value="جلود ودباغة"></option>
+                            <option value="لوجستيات ونقل وشحن"></option>
+                            <option value="تجارة جملة وتوزيع"></option>
+                            <option value="طاقة وتعدين وبترول"></option>
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">اسم مسؤول المشتريات / الإدارة</label>
+                        <input type="text" id="m_contactName" required placeholder="مثال: المهندس / حسام البدري" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">رقم الهاتف (WhatsApp)</label>
+                        <input type="text" id="m_phone" required placeholder="010XXXXXXXX" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-left" dir="ltr">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">البريد الإلكتروني للعميل (Email)</label>
+                    <input type="email" id="m_email" placeholder="purchasing@company.com" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-left font-sans" dir="ltr">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">قيمة الصفقة المتوقعة (ج.م) *</label>
+                        <input type="number" id="m_value" required placeholder="مثال: 450000" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:bg-white text-left font-mono" dir="ltr">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">المرحلة المبدئية في المسار *</label>
+                        <select id="m_stage" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium text-slate-700">
+                            <option value="lead" selected>1. عميل جديد وتأهيل</option>
+                            <option value="proposal">2. إرسال عرض أسعار</option>
+                            <option value="negotiation">3. تفاوض وشروط دفع</option>
+                            <option value="won">4. تم الإغلاق بنجاح</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-3 flex gap-2">
+                    <button type="submit" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-lg transition shadow-sm">حفظ وإضافة إلى المسار البيعي</button>
+                    <button type="button" onclick="closeModal('newLeadModal')" class="px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: AUTH & TENANT LOGIN / REGISTER MODAL -->
+    <div id="authModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center border border-brand-100 font-bold">
+                        <i data-lucide="lock" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">بوابة تسجيل الدخول إلى رَصَد</h3>
+                        <p class="text-[11px] text-slate-500">ادخل لحساب شركتك بواسطة بريدك وكلمة المرور</p>
+                    </div>
+                </div>
+                <!-- Close button only enabled if user is already logged in -->
+                <button id="authModalCloseBtn" onclick="closeModal('authModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Switch between Direct Login, Quick Accounts, or New Registration -->
+            <div class="flex border-b border-slate-200 mb-4 text-xs">
+                <button type="button" onclick="toggleAuthTab('login')" id="tabBtn-login" class="flex-1 py-2 font-bold text-brand-600 border-b-2 border-brand-600">تسجيل الدخول</button>
+                <button type="button" onclick="toggleAuthTab('quick')" id="tabBtn-quick" class="flex-1 py-2 font-bold text-slate-500 hover:text-slate-700">حسابات للتجربة</button>
+                <button type="button" onclick="toggleAuthTab('register')" id="tabBtn-register" class="flex-1 py-2 font-bold text-slate-500 hover:text-slate-700">تسجيل شركة جديدة</button>
+            </div>
+
+            <!-- Tab 1: Real Email & Password Login Form -->
+            <form id="directLoginForm" onsubmit="handleDirectLogin(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">البريد الإلكتروني للعمل *</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="w-4 h-4 absolute right-3 top-3 text-slate-400"></i>
+                        <input type="email" id="login_email" required placeholder="name@company.com" class="w-full pr-9 pl-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:bg-white text-left font-sans" dir="ltr">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block font-semibold text-slate-700">كلمة المرور *</label>
+                        <span class="text-[10px] text-slate-400">كلمة المرور الافتراضية للحسابات: 123456</span>
+                    </div>
+                    <div class="relative">
+                        <i data-lucide="key" class="w-4 h-4 absolute right-3 top-3 text-slate-400"></i>
+                        <input type="password" id="login_pass" required placeholder="••••••••" class="w-full pr-9 pl-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:bg-white text-left font-sans" dir="ltr">
+                    </div>
+                </div>
+
+                <div id="loginErrorMsg" class="hidden p-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-xs flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span id="loginErrorText">البريد الإلكتروني أو كلمة المرور غير صحيحة</span>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-lg transition shadow-sm flex items-center justify-center gap-2">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        <span>تسجيل الدخول لحساب الشركة</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Tab 2: Quick Tenant Select (Demo Mode) -->
+            <div id="authTab-quick" class="hidden space-y-3 text-xs">
+                <p class="text-slate-500 leading-relaxed">
+                    اضغط على أي حساب لتعبئة بيانات الدخول مباشرة وتجربة عزل الشركات:
+                </p>
+
+                <!-- Dynamic & Persistent Registered Tenants List -->
+                <div class="space-y-2 max-h-60 overflow-y-auto pr-1" id="tenantsListContainer">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Tab 3: Register New Tenant -->
+            <form id="registerTenantForm" onsubmit="handleRegisterTenant(event)" class="hidden space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">اسم شركتك أو مصنعك *</label>
+                    <input type="text" id="reg_company" required placeholder="مثال: مصنع الفيروز للألومنيوم" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 focus:bg-white">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">اسمك الكامل (مدير المبيعات) *</label>
+                    <input type="text" id="reg_user" required placeholder="مثال: المهندس / محمد علي" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">البريد الإلكتروني للعمل *</label>
+                    <input type="email" id="reg_email" required placeholder="name@company.com" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-left" dir="ltr">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">كلمة المرور *</label>
+                    <input type="password" id="reg_pass" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-left" dir="ltr">
+                </div>
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-lg transition shadow-sm">
+                        إنشاء حساب الشركة وتسجيل الدخول فوراً
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: SUPABASE CLOUD BACKEND CONFIG -->
+    <div id="cloudConfigModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="space-y-3 text-xs mb-5">
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
+                    <span class="text-slate-500">القيمة المتوقعة:</span>
+                    <span id="dt_value" class="font-bold text-slate-900 text-sm"></span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
+                    <span class="text-slate-500">الموقع:</span>
+                    <span id="dt_location" class="font-semibold text-slate-800"></span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
+                    <span class="text-slate-500">مسؤول التواصل:</span>
+                    <span id="dt_contact" class="font-semibold text-slate-800"></span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
+                    <span class="text-slate-500">رقم الهاتف:</span>
+                    <span id="dt_phone" class="font-semibold text-slate-800" dir="ltr"></span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg">
+                    <span class="text-slate-500">البريد الإلكتروني:</span>
+                    <span id="dt_email" class="font-semibold text-slate-800 font-sans" dir="ltr"></span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <button id="dt_whatsappBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 shadow-sm transition">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                    <span>مراسلة عبر واتساب مباشرة</span>
+                </button>
+                <button id="dt_emailBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 shadow-sm transition">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                    <span>إرسال بريد إلكتروني رسمي (Email)</span>
+                </button>
+                <button onclick="sendToAiForPrep()" class="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 font-bold py-2 rounded-lg flex items-center justify-center gap-1.5 transition text-xs">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
+                    <span>تجهيز رد ذكي بواسطة AI لهذا العميل</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 6: QUICK WHATSAPP SENDER MODAL -->
+    <div id="quickWhatsAppModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 font-bold">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">مراسلة عميل عبر WhatsApp</h3>
+                        <p class="text-[11px] text-slate-500">فتح تطبيق أو ويب واتساب مباشرة بمحادثة مجهزة</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('quickWhatsAppModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="quickWhatsAppForm" onsubmit="handleSendCustomWhatsApp(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">اختر عميلاً مسجلاً أو أدخل رقماً يدوياً</label>
+                    <select id="wa_client_select" onchange="onWhatsAppClientSelected()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:bg-white font-medium text-slate-700">
+                        <option value="">-- إدخال رقم هاتف يدوي --</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">اسم العميل / الشركة</label>
+                        <input type="text" id="wa_custom_name" placeholder="مثال: مصنع النور" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">رقم الهاتف (WhatsApp) *</label>
+                        <input type="text" id="wa_custom_phone" required placeholder="010XXXXXXXX" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-left font-mono" dir="ltr">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block font-semibold text-slate-700">قالب الرسالة السريع</label>
+                        <span class="text-[10px] text-emerald-600 font-medium">نماذج مبيعات جاهزة</span>
+                    </div>
+                    <select id="wa_template_select" onchange="applyWhatsAppTemplate()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-slate-700">
+                        <option value="intro">تحية مبدئية ومتابعة طلب التوريد</option>
+                        <option value="quotation">إشعار بإرسال عرض السعر الفني والمالي</option>
+                        <option value="meeting">طلب موعد زيارة ميدانية للمصنع</option>
+                        <option value="custom">رسالة مخصصة فارغة</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">نص الرسالة *</label>
+                    <textarea id="wa_custom_message" rows="4" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:bg-white text-slate-800 leading-relaxed font-sans"></textarea>
+                </div>
+
+                <div class="pt-2 flex gap-2">
+                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>فتح واتساب والإرسال الآن</span>
+                    </button>
+                    <button type="button" onclick="closeModal('quickWhatsAppModal')" class="px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 7: QUICK EMAIL SENDER MODAL -->
+    <div id="quickEmailModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 font-bold">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">إرسال بريد إلكتروني رسمي</h3>
+                        <p class="text-[11px] text-slate-500">إرسال مباشر عبر Gmail أو برنامج البريد المعتمد لديك</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('quickEmailModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="quickEmailForm" onsubmit="handleSendCustomEmail(event, 'client')" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">اختر عميلاً مسجلاً أو أدخل بريداً يدوياً</label>
+                    <select id="em_client_select" onchange="onEmailClientSelected()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white font-medium text-slate-700">
+                        <option value="">-- إدخال بريد إلكتروني يدوي --</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">اسم العميل / المصنع</label>
+                        <input type="text" id="em_custom_name" placeholder="مثال: شركة الأمل للبلاستيك" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">البريد الإلكتروني للعميل *</label>
+                        <input type="email" id="em_custom_email" required placeholder="contact@company.com" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-left font-sans" dir="ltr">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block font-semibold text-slate-700">قالب البريد الجاهز</label>
+                        <span class="text-[10px] text-blue-600 font-medium">صياغة تجارية معتمدة</span>
+                    </div>
+                    <select id="em_template_select" onchange="applyEmailTemplate()" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none text-slate-700">
+                        <option value="quotation">إرسال عرض أسعار فني ومالي معتمد</option>
+                        <option value="followup">متابعة عرض أسعار معلق وشروط الدفع</option>
+                        <option value="meeting">طلب اجتماع عمل وزيارة ميدانية للمصنع</option>
+                        <option value="custom">إيميل مخصص وفارغ</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">موضوع الإيميل (Subject) *</label>
+                    <input type="text" id="em_custom_subject" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none font-medium text-slate-800">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">نص الرسالة (Body) *</label>
+                    <textarea id="em_custom_body" rows="6" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:bg-white text-slate-800 leading-relaxed font-sans"></textarea>
+                </div>
+
+                <div class="pt-2 flex flex-col sm:flex-row gap-2">
+                    <button type="button" onclick="handleSendCustomEmail(event, 'gmail')" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-lg transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        <span>فتح في Gmail مباشرة</span>
+                    </button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
+                        <span>فتح عبر تطبيق البريد (Outlook)</span>
+                    </button>
+                    <button type="button" onclick="closeModal('quickEmailModal')" class="px-4 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div id="toast" class="fixed bottom-5 left-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-semibold">
+        <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toastMsg">تمت العملية بنجاح</span>
+    </div>
+
+    <!-- App JavaScript Logic -->
+    <script>
+        // Multi-Tenant Profiles & Credentials Directory with Passwords
+        const defaultTenants = {
+            ahram: {
+                id: "ahram",
+                companyName: "مصنع الأهرام للمعدات الهندسية",
+                userName: "م/ أحمد محمود",
+                userInitials: "أح",
+                userRole: "مدير المبيعات الصناعية",
+                email: "ahmed@ahram-ind.eg",
+                password: "password123",
+                city: "العاشر من رمضان",
+                isCustom: false
+            },
+            delta: {
+                id: "delta",
+                companyName: "شركة الدلتا للصناعات الكيماوية",
+                userName: "أ/ طارق حسني",
+                userInitials: "طح",
+                userRole: "مسؤول الحسابات الكبرى",
+                email: "tarek@delta-chem.eg",
+                password: "password123",
+                city: "مدينة السادات",
+                isCustom: false
+            },
+            nile: {
+                id: "nile",
+                companyName: "مجموعة النيل للتغليف والكرتون",
+                userName: "م/ سارة فهمي",
+                userInitials: "سف",
+                userRole: "رئيس قطاع التعاقدات",
+                email: "sara@nile-pack.eg",
+                password: "password123",
+                city: "السادس من أكتوبر",
+                isCustom: false
+            }
+        };
+
+        // Load Tenants from localStorage or fallback to defaults
+        let tenants = JSON.parse(localStorage.getItem('rasd_all_tenants_v1')) || defaultTenants;
+
+        // Active Session State (Null if not logged in)
+        let currentTenantId = localStorage.getItem('rasd_current_tenant');
+        if (!currentTenantId || !tenants[currentTenantId]) {
+            currentTenantId = "ahram"; // Default fallback
+        }
+        let isLoggedIn = localStorage.getItem('rasd_is_logged_in') !== 'false';
+
+        // Master Multi-Tenant Dataset
+        const initialMasterDeals = [
+            // --- Deals belonging strictly to مصنع الأهرام (ahram) ---
+            {
+                id: 101,
+                tenant_id: "ahram",
+                company: "شركة الأمل للبلاستيك ومستلزمات الري",
+                sector: "كيماويات وأسمدة وبلاستيك",
+                location: "العاشر من رمضان",
+                contact: "م/ شريف عثمان (مدير المشتريات)",
+                phone: "+201012345678",
+                email: "purchasing@alamal-plastic.com",
+                value: 680000,
+                stage: "negotiation",
+                notes: "معترض على شروط الدفع، يطلب 60 يوم أجل بعد الفحص المخبري."
+            },
+            {
+                id: 102,
+                tenant_id: "ahram",
+                company: "مجمع الدلتا للصناعات الغذائية",
+                sector: "صناعات غذائية",
+                location: "مدينة السادات",
+                contact: "أ/ محمود الدسوقي (مدير المصنع)",
+                phone: "+201198765432",
+                email: "m.desouky@delta-foods.eg",
+                value: 1250000,
+                stage: "proposal",
+                notes: "تم إرسال عرض أسعار لخط التعبئة الآلي الجديد، بانتظار اعتماد الميزانية."
+            },
+            {
+                id: 103,
+                tenant_id: "ahram",
+                company: "الفرسان لطباعة وتدوير الكرتون",
+                sector: "كيماويات وبلاستيك",
+                location: "بدر والعبور",
+                contact: "الحاج/ فؤاد سلامة",
+                phone: "+201555667788",
+                email: "alforsan.print@gmail.com",
+                value: 580000,
+                stage: "won",
+                notes: "تم طلب تسعير 10 أطنان أحبار ومستلزمات مطابع مع شرط شهادة المنشأ."
+            },
+
+            // --- Deals belonging strictly to شركة الدلتا (delta) ---
+            {
+                id: 201,
+                tenant_id: "delta",
+                company: "النصر للكيماويات والدهانات الحديثة",
+                sector: "كيماويات وبلاستيك",
+                location: "مدينة السادات",
+                contact: "الكيميائي/ إبراهيم ناجي",
+                phone: "+201200112233",
+                email: "elnasr.chem@outlook.com",
+                value: 950000,
+                stage: "proposal",
+                notes: "طلب عينات لمواد البوليمر والمذيبات قبل توقيع العقد السنوي."
+            },
+            {
+                id: 202,
+                tenant_id: "delta",
+                company: "مصانع الشرق للمطاط وعوازل السيارات",
+                sector: "صناعات هندسية",
+                location: "العاشر من رمضان",
+                contact: "م/ رأفت عبد العال",
+                phone: "+201099887766",
+                email: "procurement@alsharq-rubber.com",
+                value: 1650000,
+                stage: "negotiation",
+                notes: "مفاوضات مستمرة حول بند غرامات التأخير وتثبيت سعر الصرف."
+            },
+
+            // --- Deals belonging strictly to مجموعة النيل (nile) ---
+            {
+                id: 301,
+                tenant_id: "nile",
+                company: "المصرية السويسرية للمكرونة والمطاحن",
+                sector: "صناعات غذائية",
+                location: "السادس من أكتوبر",
+                contact: "أ/ وسام الديب",
+                phone: "+201144332211",
+                email: "wessam@egypt-swiss.com",
+                value: 2100000,
+                stage: "won",
+                notes: "عقد توريد سنوي لـ 500 ألف كرتونة شحن مضلعة ثلاثية الطبقات."
+            },
+            {
+                id: 302,
+                tenant_id: "nile",
+                company: "سيراميكا كليوباترا جروب",
+                sector: "مواد بناء وتشييد",
+                location: "العين السخنة",
+                contact: "م/ هاني زهران",
+                phone: "+201288776655",
+                email: "contracts@cleopatra-group.com",
+                value: 1800000,
+                stage: "lead",
+                notes: "استفسار وارد عبر الموقع لكراتين تعبئة بلاطات البورسلين الثقيل."
+            }
+        ];
+
+        // Master Multi-Tenant Tasks
+        const initialMasterTasks = [
+            { id: 1, tenant_id: "ahram", text: "الاتصال بمصنع الأمل للتفاوض على دفعة 40% كاش و 60 يوم للباقي", company: "شركة الأمل للبلاستيك", date: "اليوم - 01:30 م", urgent: true, done: false },
+            { id: 2, tenant_id: "ahram", text: "إرسال شهادات الجودة والمواصفات الفنية المعتمدة", company: "مجمع الدلتا للغذائيات", date: "غداً - 10:00 ص", urgent: false, done: false },
+            { id: 3, tenant_id: "delta", text: "إرسال عينات البراميل للاختبار المعملي بمصنع السادات", company: "النصر للكيماويات", date: "اليوم - 03:00 م", urgent: true, done: false },
+            { id: 4, tenant_id: "nile", text: "مراجعة نموذج العقد السنوي مع الإدارة القانونية", company: "المصرية السويسرية", date: "الأربعاء - 11:00 ص", urgent: false, done: false }
+        ];
+
+        // Retrieve persisted data from localStorage if available, or fallback to mock
+        let allDeals = JSON.parse(localStorage.getItem('rasd_deals_v1')) || initialMasterDeals;
+        let allTasks = JSON.parse(localStorage.getItem('rasd_tasks_v1')) || initialMasterTasks;
+        let currentDetailDeal = null;
+
+        // Active Tenant Filtered Views (Row Level Security Simulation)
+        function getTenantDeals() {
+            return allDeals.filter(d => d.tenant_id === currentTenantId);
+        }
+
+        function getTenantTasks() {
+            return allTasks.filter(t => t.tenant_id === currentTenantId);
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('rasd_deals_v1', JSON.stringify(allDeals));
+            localStorage.setItem('rasd_tasks_v1', JSON.stringify(allTasks));
+            localStorage.setItem('rasd_current_tenant', currentTenantId);
+            localStorage.setItem('rasd_all_tenants_v1', JSON.stringify(tenants));
+        }
+
+        // Format Currency in Egyptian Pounds
+        function formatEGP(num) {
+            return new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP', maximumFractionDigits: 0 }).format(num);
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            updateTenantUI();
+            renderTenantsList();
+            lucide.createIcons();
+            refreshAllViews();
+
+            // Check if user is logged out, prompt login
+            if (!isLoggedIn) {
+                promptLogin();
+            }
+        });
+
+        // Prompt Login when logged out
+        function promptLogin() {
+            openModal('authModal');
+            toggleAuthTab('login');
+            // Hide the close button to enforce logging in
+            const closeBtn = document.getElementById('authModalCloseBtn');
+            if (closeBtn) closeBtn.classList.add('hidden');
+        }
+
+        // Handle Logout
+        function handleLogout() {
+            isLoggedIn = false;
+            localStorage.setItem('rasd_is_logged_in', 'false');
+            promptLogin();
+            showToast("تم تسجيل الخروج بنجاح");
+        }
+
+        // Handle Direct Email & Password Login
+        function handleDirectLogin(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('login_email').value.trim().toLowerCase();
+            const passInput = document.getElementById('login_pass').value.trim();
+            const errBox = document.getElementById('loginErrorMsg');
+            const errText = document.getElementById('loginErrorText');
+
+            // Find matching tenant by email
+            const matchedTenant = Object.values(tenants).find(t => t.email.toLowerCase() === emailInput);
+
+            if (!matchedTenant) {
+                errBox.classList.remove('hidden');
+                errText.innerText = "هذا البريد الإلكتروني غير مسجل بالنظام.";
+                return;
+            }
+
+            // Verify Password (supports "password123", "123456", or the registered password)
+            if (matchedTenant.password && matchedTenant.password !== passInput && passInput !== "123456" && passInput !== "password123") {
+                errBox.classList.remove('hidden');
+                errText.innerText = "كلمة المرور غير صحيحة، يرجى المحاولة مرة أخرى.";
+                return;
+            }
+
+            // Success
+            errBox.classList.add('hidden');
+            currentTenantId = matchedTenant.id;
+            isLoggedIn = true;
+            localStorage.setItem('rasd_is_logged_in', 'true');
+            saveToStorage();
+            updateTenantUI();
+            refreshAllViews();
+            
+            const closeBtn = document.getElementById('authModalCloseBtn');
+            if (closeBtn) closeBtn.classList.remove('hidden');
+            closeModal('authModal');
+            document.getElementById('directLoginForm').reset();
+            showToast(`مرحباً بك مجدداً: ${matchedTenant.userName} (${matchedTenant.companyName})`);
+        }
+
+        // Update Header & Settings with Active Tenant Identity
+        function updateTenantUI() {
+            const current = tenants[currentTenantId] || {
+                id: currentTenantId,
+                companyName: "شركة مسجلة جديدة",
+                userName: "مدير المبيعات",
+                userInitials: "ش",
+                userRole: "مدير الحساب",
+                email: "admin@crm.local"
+            };
+
+            // Header Elements
+            const pCompany = document.getElementById('currentCompanyPill');
+            const pTenant = document.getElementById('tenantBadgeId');
+            const pUser = document.getElementById('currentUserName');
+            const pRole = document.getElementById('currentUserRole');
+            const pAvatar = document.getElementById('userAvatar');
+
+            if (pCompany) pCompany.innerText = current.companyName;
+            if (pTenant) pTenant.innerText = `ID: ${current.id}`;
+            if (pUser) pUser.innerText = current.userName;
+            if (pRole) pRole.innerText = current.userRole;
+            if (pAvatar) pAvatar.innerText = current.userInitials;
+
+            // Live Settings Tester
+            const sUser = document.getElementById('liveSessionUser');
+            const sComp = document.getElementById('liveSessionCompany');
+            const sTen = document.getElementById('liveSessionTenant');
+            if (sUser) sUser.innerText = current.userName;
+            if (sComp) sComp.innerText = current.companyName;
+            if (sTen) sTen.innerText = current.id;
+        }
+
+        // Re-render all sections with active tenant's isolated data
+        function refreshAllViews() {
+            renderDashboard();
+            renderKanban();
+            renderLeadsTable();
+            updateSectorFilterDropdown();
+            renderTasks();
+            renderNotifications();
+            renderTenantsList();
+        }
+
+        // Dynamically update Sector Dropdown based on actual user data
+        function updateSectorFilterDropdown() {
+            const dropdown = document.getElementById('sectorFilter');
+            if (!dropdown) return;
+            const currentSelected = dropdown.value;
+            const tenantDeals = getTenantDeals();
+            
+            // Extract unique sectors from current deals
+            const sectors = Array.from(new Set(tenantDeals.map(d => d.sector).filter(Boolean)));
+            
+            let html = '<option value="all">جميع القطاعات والأنشطة</option>';
+            sectors.forEach(sec => {
+                html += `<option value="${sec}">${sec}</option>`;
+            });
+            dropdown.innerHTML = html;
+            
+            // Restore previous selected value if it still exists
+            if (sectors.includes(currentSelected)) {
+                dropdown.value = currentSelected;
+            } else {
+                dropdown.value = 'all';
+            }
+        }
+
+        // Render Tenants in Quick Tab
+        function renderTenantsList() {
+            const container = document.getElementById('tenantsListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.values(tenants).forEach(t => {
+                const isCurrent = t.id === currentTenantId;
+                const btn = document.createElement('div');
+                btn.className = `w-full text-right p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${
+                    isCurrent ? 'border-brand-600 bg-brand-50/70 shadow-xs' : 'border-slate-200 hover:border-brand-400 hover:bg-slate-50'
+                }`;
+                btn.onclick = () => fillCredentialsAndLogin(t.email, t.password || "123456");
+
+                btn.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg ${t.isCustom ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center font-bold text-xs">
+                            ${t.userInitials}
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                                <span>${t.companyName}</span>
+                                ${isCurrent ? '<span class="text-[9px] bg-brand-600 text-white px-1.5 py-0.2 rounded font-semibold">النشطة</span>' : ''}
+                                ${t.isCustom ? '<span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.2 rounded font-semibold">حسابك</span>' : ''}
+                            </div>
+                            <div class="text-[11px] text-slate-500">${t.userName} • <span class="font-mono text-slate-700">${t.email}</span></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] bg-brand-50 text-brand-700 border border-brand-200 px-2 py-0.5 rounded font-bold">دخول فوري</span>
+                        ${t.isCustom ? `
+                            <button onclick="event.stopPropagation(); deleteCustomTenant('${t.id}')" title="حذف هذا الحساب التجريبي" class="text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50 transition">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+
+        // Fill credentials and auto login from quick select
+        function fillCredentialsAndLogin(email, password) {
+            toggleAuthTab('login');
+            document.getElementById('login_email').value = email;
+            document.getElementById('login_pass').value = password;
+            // Trigger login
+            document.getElementById('directLoginForm').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+
+        // Delete Custom Created Tenant
+        function deleteCustomTenant(tenantId) {
+            if (confirm("هل أنت متأكد من حذف هذا الحساب وكافة بياناته؟")) {
+                delete tenants[tenantId];
+                allDeals = allDeals.filter(d => d.tenant_id !== tenantId);
+                allTasks = allTasks.filter(t => t.tenant_id !== tenantId);
+                
+                if (currentTenantId === tenantId) {
+                    currentTenantId = "ahram";
+                }
+                saveToStorage();
+                updateTenantUI();
+                refreshAllViews();
+                showToast("تم حذف الحساب بنجاح");
+            }
+        }
+
+        // Register Brand New Tenant Company Handler
+        function handleRegisterTenant(e) {
+            e.preventDefault();
+            const companyName = document.getElementById('reg_company').value.trim();
+            const userName = document.getElementById('reg_user').value.trim();
+            const email = document.getElementById('reg_email').value.trim().toLowerCase();
+            const pass = document.getElementById('reg_pass').value.trim();
+
+            if (!companyName || !userName || !email) return;
+
+            // Check if email already exists
+            const exists = Object.values(tenants).some(t => t.email.toLowerCase() === email);
+            if (exists) {
+                showToast("هذا البريد الإلكتروني مسجل بالفعل! استخدم شاشة تسجيل الدخول");
+                toggleAuthTab('login');
+                document.getElementById('login_email').value = email;
+                return;
+            }
+
+            // Create a clean tenant_id slug
+            const newId = "comp_" + Math.random().toString(36).substring(2, 7);
+            const initials = userName.split(' ').filter(Boolean).map(n => n[0]).slice(0, 2).join('') || "ش";
+
+            // Save tenant object permanently
+            tenants[newId] = {
+                id: newId,
+                companyName: companyName,
+                userName: userName,
+                userInitials: initials,
+                userRole: "مؤسس / مدير عام",
+                email: email,
+                password: pass || "123456",
+                city: "مصر",
+                isCustom: true
+            };
+
+            currentTenantId = newId;
+            isLoggedIn = true;
+            localStorage.setItem('rasd_is_logged_in', 'true');
+            saveToStorage();
+            updateTenantUI();
+            refreshAllViews();
+            
+            const closeBtn = document.getElementById('authModalCloseBtn');
+            if (closeBtn) closeBtn.classList.remove('hidden');
+            closeModal('authModal');
+            document.getElementById('registerTenantForm').reset();
+            showToast(`تم إنشاء حساب شركة (${companyName}) وتسجيل الدخول بنجاح ✓`);
+        }
+
+        // Toggle Auth Modal Tabs (Login / Quick / Register)
+        function toggleAuthTab(tab) {
+            const tabLogin = document.getElementById('directLoginForm');
+            const tabQuick = document.getElementById('authTab-quick');
+            const tabReg = document.getElementById('registerTenantForm');
+            
+            const btnLogin = document.getElementById('tabBtn-login');
+            const btnQuick = document.getElementById('tabBtn-quick');
+            const btnReg = document.getElementById('tabBtn-register');
+
+            // Reset error on tab switch
+            const errBox = document.getElementById('loginErrorMsg');
+            if (errBox) errBox.classList.add('hidden');
+
+            // Hide all
+            tabLogin.classList.add('hidden');
+            tabQuick.classList.add('hidden');
+            tabReg.classList.add('hidden');
+
+            [btnLogin, btnQuick, btnReg].forEach(b => {
+                b.classList.remove('text-brand-600', 'border-b-2', 'border-brand-600');
+                b.classList.add('text-slate-500');
+            });
+
+            if (tab === 'login') {
+                tabLogin.classList.remove('hidden');
+                btnLogin.classList.add('text-brand-600', 'border-b-2', 'border-brand-600');
+                btnLogin.classList.remove('text-slate-500');
+            } else if (tab === 'quick') {
+                tabQuick.classList.remove('hidden');
+                btnQuick.classList.add('text-brand-600', 'border-b-2', 'border-brand-600');
+                btnQuick.classList.remove('text-slate-500');
+            } else {
+                tabReg.classList.remove('hidden');
+                btnReg.classList.add('text-brand-600', 'border-b-2', 'border-brand-600');
+                btnReg.classList.remove('text-slate-500');
+            }
+        }
+
+        // Tab Switcher
+        function switchTab(tabId) {
+            const tabs = ['dashboard', 'pipeline', 'leads', 'aiAssistant', 'tasks', 'settings'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                const nav = document.getElementById(`nav-${t}`);
+                if (t === tabId) {
+                    el.classList.remove('hidden');
+                    nav.classList.add('bg-brand-50', 'text-brand-700');
+                    nav.classList.remove('text-slate-600', 'hover:bg-slate-50');
+                } else {
+                    el.classList.add('hidden');
+                    nav.classList.remove('bg-brand-50', 'text-brand-700');
+                    nav.classList.add('text-slate-600', 'hover:bg-slate-50');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Render Kanban Board for active tenant
+        function renderKanban() {
+            const cols = {
+                lead: document.getElementById('col-lead'),
+                proposal: document.getElementById('col-proposal'),
+                negotiation: document.getElementById('col-negotiation'),
+                won: document.getElementById('col-won')
+            };
+
+            Object.values(cols).forEach(col => col.innerHTML = '');
+
+            const tenantDeals = getTenantDeals();
+            const counts = { lead: 0, proposal: 0, negotiation: 0, won: 0 };
+
+            tenantDeals.forEach(deal => {
+                if (cols[deal.stage]) {
+                    counts[deal.stage]++;
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md transition cursor-pointer space-y-2.5 text-xs";
+                    card.onclick = () => openDealDetails(deal.id);
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between">
+                            <span class="font-bold text-slate-800 line-clamp-1">${deal.company}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500 flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
+                            <span>${deal.location}</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+                            <span class="font-bold text-slate-900">${formatEGP(deal.value)}</span>
+                            <div class="flex gap-1" onclick="event.stopPropagation()">
+                                ${deal.stage !== 'won' ? `
+                                    <button title="نقل للمرحلة التالية" onclick="moveDealStage(${deal.id})" class="p-1 hover:bg-slate-100 rounded text-brand-600">
+                                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                    </button>
+                                ` : '<span class="text-emerald-600 text-[10px] font-bold">مكتملة ✓</span>'}
+                            </div>
+                        </div>
+                    `;
+                    cols[deal.stage].appendChild(card);
+                }
+            });
+
+            document.getElementById('col-count-lead').innerText = counts.lead;
+            document.getElementById('col-count-proposal').innerText = counts.proposal;
+            document.getElementById('col-count-negotiation').innerText = counts.negotiation;
+            document.getElementById('col-count-won').innerText = counts.won;
+            document.getElementById('totalDealsBadge').innerText = tenantDeals.length;
+
+            lucide.createIcons();
+        }
+
+        // Move Deal to Next Stage
+        function moveDealStage(id) {
+            const stages = ['lead', 'proposal', 'negotiation', 'won'];
+            const deal = allDeals.find(d => d.id === id && d.tenant_id === currentTenantId);
+            if (deal) {
+                const currentIndex = stages.indexOf(deal.stage);
+                if (currentIndex < stages.length - 1) {
+                    deal.stage = stages[currentIndex + 1];
+                    saveToStorage();
+                    refreshAllViews();
+                    showToast(`تم ترقية ${deal.company} إلى المرحلة التالية`);
+                }
+            }
+        }
+
+        // Render Dashboard Content for active tenant
+        function renderDashboard() {
+            const tenantDeals = getTenantDeals();
+            const totalPipeline = tenantDeals.filter(d => d.stage !== 'won').reduce((sum, d) => sum + d.value, 0);
+            const wonTotal = tenantDeals.filter(d => d.stage === 'won').reduce((sum, d) => sum + d.value, 0);
+
+            document.getElementById('kpi-pipeline-val').innerText = formatEGP(totalPipeline);
+            document.getElementById('kpi-won-val').innerText = formatEGP(wonTotal);
+
+            const urgentList = document.getElementById('urgentDealsList');
+            urgentList.innerHTML = '';
+
+            if (tenantDeals.length === 0) {
+                urgentList.innerHTML = `<div class="py-6 text-center text-slate-400 text-xs">لا توجد صفقات مسجلة لهذه الشركة بعد. اضغط "إضافة صفقة جديدة" للبدء.</div>`;
+                return;
+            }
+
+            tenantDeals.slice(0, 3).forEach(deal => {
+                const item = document.createElement('div');
+                item.className = "py-3 flex items-center justify-between";
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 font-bold text-xs">
+                            <i data-lucide="factory" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-slate-900">${deal.company}</div>
+                            <div class="text-[11px] text-slate-500">${deal.contact} • ${deal.location}</div>
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xs font-bold text-slate-900">${formatEGP(deal.value)}</div>
+                        <button onclick="openDealDetails(${deal.id})" class="text-[11px] text-brand-600 hover:underline font-semibold">متابعة الآن</button>
+                    </div>
+                `;
+                urgentList.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+        // Render Leads Table for active tenant
+        function renderLeadsTable() {
+            const tbody = document.getElementById('leadsTableBody');
+            tbody.innerHTML = '';
+            const tenantDeals = getTenantDeals();
+
+            if (tenantDeals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">لا توجد شركات أو مصانع مضافة في سجل هذا الحساب بعد.</td></tr>`;
+                return;
+            }
+
+            tenantDeals.forEach(deal => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-3.5">
+                        <div class="font-bold text-slate-900">${deal.company}</div>
+                        <span class="inline-block mt-0.5 px-2 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600">${deal.sector}</span>
+                    </td>
+                    <td class="p-3.5 text-slate-600">${deal.location}</td>
+                    <td class="p-3.5">
+                        <div class="font-medium text-slate-800">${deal.contact}</div>
+                        <div class="text-[11px] text-slate-500 font-mono" dir="ltr">${deal.phone}</div>
+                        ${deal.email ? `<div class="text-[10px] text-blue-600 font-mono" dir="ltr">${deal.email}</div>` : ''}
+                    </td>
+                    <td class="p-3.5 font-bold text-slate-900">${formatEGP(deal.value)}</td>
+                    <td class="p-3.5">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                            deal.stage === 'won' ? 'bg-emerald-100 text-emerald-800' :
+                            deal.stage === 'negotiation' ? 'bg-purple-100 text-purple-800' :
+                            deal.stage === 'proposal' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                        }">
+                            ${
+                                deal.stage === 'won' ? 'تم التعاقد' :
+                                deal.stage === 'negotiation' ? 'تفاوض وشروط الدفع' :
+                                deal.stage === 'proposal' ? 'عرض سعر مرسل' : 'تأهيل وتواصل'
+                            }
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="quickWhatsApp('${deal.phone}', '${deal.company}')" class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg transition" title="مراسلة عبر واتساب">
+                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="quickEmail('${deal.email || ''}', '${deal.company}')" class="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg transition" title="إرسال بريد إلكتروني">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="openDealDetails(${deal.id})" class="p-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition" title="عرض التفاصيل">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // Filter Leads Table
+        function filterLeadsTable() {
+            const query = document.getElementById('leadSearchInput').value.toLowerCase();
+            const sector = document.getElementById('sectorFilter').value;
+            const rows = document.getElementById('leadsTableBody').getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const text = rows[i].innerText.toLowerCase();
+                const matchesSearch = text.includes(query);
+                const matchesSector = (sector === 'all') || text.includes(sector.toLowerCase());
+
+                if (matchesSearch && matchesSector) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+
+        // Render Tasks for active tenant
+        function renderTasks() {
+            const container = document.getElementById('tasksListContainer');
+            container.innerHTML = '';
+            const tenantTasks = getTenantTasks();
+
+            if (tenantTasks.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs">لا توجد مهام أو متابعات مجدولة لشركتك حالياً.</div>`;
+                return;
+            }
+
+            tenantTasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = `p-3.5 rounded-xl border flex items-center justify-between text-xs transition ${
+                    task.done ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-white border-slate-200 shadow-sm'
+                }`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask(${task.id})" class="w-4 h-4 text-brand-600 rounded cursor-pointer">
+                        <div>
+                            <p class="font-bold text-slate-800 ${task.done ? 'line-through text-slate-400' : ''}">${task.text}</p>
+                            <p class="text-[11px] text-slate-500 mt-0.5">${task.company} • <span class="text-brand-600">${task.date}</span></p>
+                        </div>
+                    </div>
+                    <div>
+                        ${task.urgent && !task.done ? '<span class="bg-rose-100 text-rose-700 text-[10px] px-2 py-0.5 rounded font-bold">عاجل</span>' : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function toggleTask(id) {
+            const t = allTasks.find(x => x.id === id && x.tenant_id === currentTenantId);
+            if (t) {
+                t.done = !t.done;
+                saveToStorage();
+                renderTasks();
+                showToast(t.done ? "تم تعليم المهمة كمنجزة" : "تمت إعادة تفعيل المهمة");
+            }
+        }
+
+        // Add New Task Handler (Tags automatically with active tenant_id)
+        function handleCreateTask(e) {
+            e.preventDefault();
+            const textInput = document.getElementById('t_text');
+            const companyInput = document.getElementById('t_company');
+            const dateInput = document.getElementById('t_date');
+            const urgentInput = document.getElementById('t_urgent');
+
+            if (!textInput || !companyInput || !dateInput) return;
+
+            const newTask = {
+                id: Date.now(),
+                tenant_id: currentTenantId, // Row Level Security Tag
+                text: textInput.value.trim(),
+                company: companyInput.value.trim(),
+                date: dateInput.value.trim(),
+                urgent: urgentInput ? urgentInput.value === 'urgent' : false,
+                done: false
+            };
+
+            allTasks.unshift(newTask);
+            saveToStorage();
+            renderTasks();
+            renderNotifications();
+            closeModal('newTaskModal');
+            document.getElementById('taskForm').reset();
+            showToast("تمت إضافة المهمة بنجاح لحساب شركتك ✓");
+        }
+
+        // Render Notifications list for active tenant
+        function renderNotifications() {
+            const container = document.getElementById('notificationsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            const pendingTasks = getTenantTasks().filter(t => !t.done);
+
+            if (pendingTasks.length === 0) {
+                container.innerHTML = `<div class="p-3 text-slate-400 text-center">لا توجد تنبيهات معلقة لشركتك اليوم.</div>`;
+                return;
+            }
+
+            pendingTasks.slice(0, 3).forEach(task => {
+                const item = document.createElement('div');
+                item.className = "p-3 hover:bg-slate-50 cursor-pointer";
+                item.innerHTML = `
+                    <p class="font-semibold text-slate-800">${task.text}</p>
+                    <p class="text-slate-500 mt-0.5">${task.company} - ${task.date}</p>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Lead Details Modal
+        function openDealDetails(id) {
+            const deal = allDeals.find(d => d.id === id && d.tenant_id === currentTenantId);
+            if (!deal) return;
+            currentDetailDeal = deal;
+
+            document.getElementById('dt_company').innerText = deal.company;
+            document.getElementById('dt_sector').innerText = deal.sector;
+            document.getElementById('dt_value').innerText = formatEGP(deal.value);
+            document.getElementById('dt_location').innerText = deal.location;
+            document.getElementById('dt_contact').innerText = deal.contact;
+            document.getElementById('dt_phone').innerText = deal.phone;
+            document.getElementById('dt_email').innerText = deal.email || 'غير مسجل';
+
+            document.getElementById('dt_whatsappBtn').onclick = () => {
+                quickWhatsApp(deal.phone, deal.company, `السلام عليكم يا فندم، بخصوص توريدات مصنع ${deal.company}... مع حضرتك ${tenants[currentTenantId] ? tenants[currentTenantId].userName : 'مسؤول المبيعات'}.`);
+            };
+
+            document.getElementById('dt_emailBtn').onclick = () => {
+                closeModal('leadDetailModal');
+                quickEmail(deal.email, deal.company);
+            };
+
+            openModal('leadDetailModal');
+            lucide.createIcons();
+        }
+
+        function sendToAiForPrep() {
+            closeModal('leadDetailModal');
+            switchTab('aiAssistant');
+            if (currentDetailDeal) {
+                document.getElementById('aiInputPrompt').value = `مطلوب متابعة عرض السعر مع ${currentDetailDeal.company} في ${currentDetailDeal.location}. قيمة الصفقة ${formatEGP(currentDetailDeal.value)}. ملاحظات الصفقة: ${currentDetailDeal.notes || 'بانتظار الموافقة'}.`;
+            }
+        }
+
+        // Clean & format Egyptian/International phone numbers for WhatsApp API
+        function formatPhoneForWhatsApp(phone) {
+            if (!phone) return "";
+            // Remove any non-digit character except plus
+            let clean = phone.replace(/[^\d]/g, '');
+            // If it starts with 00, replace with nothing
+            if (clean.startsWith('00')) clean = clean.substring(2);
+            // If it's an Egyptian local number starting with 01 (e.g. 010, 011, 012, 015)
+            if (clean.startsWith('01') && clean.length === 11) {
+                clean = '2' + clean; // Add Egypt country code 20
+            }
+            return clean;
+        }
+
+        // WhatsApp direct trigger
+        function quickWhatsApp(phone, company, customMessage = "") {
+            const formattedPhone = formatPhoneForWhatsApp(phone);
+            if (!formattedPhone) {
+                showToast("رقم الهاتف غير متوفر أو غير صحيح");
+                return;
+            }
+            
+            const currentSender = tenants[currentTenantId] ? tenants[currentTenantId].userName : 'مسؤول المبيعات';
+            const defaultMsg = `السلام عليكم يا فندم، بخصوص متابعة تعاقد وتوريدات مصنع ${company || 'حضرتكم'}... مع حضرتك ${currentSender} من منظومة رَصَد.`;
+            const textToSend = customMessage ? customMessage : defaultMsg;
+            
+            const url = `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodeURIComponent(textToSend)}`;
+            window.open(url, '_blank');
+            showToast(`جاري فتح محادثة واتساب مع: ${company || formattedPhone}`);
+        }
+
+        // Open Quick WhatsApp Modal and populate registered clients dropdown
+        function openWhatsAppQuickModal() {
+            const select = document.getElementById('wa_client_select');
+            select.innerHTML = '<option value="">-- إدخال رقم هاتف يدوي --</option>';
+            
+            const tenantDeals = getTenantDeals();
+            tenantDeals.forEach(deal => {
+                const opt = document.createElement('option');
+                opt.value = deal.id;
+                opt.textContent = `${deal.company} (${deal.phone || 'بدون هاتف'})`;
+                select.appendChild(opt);
+            });
+
+            // Set default template
+            applyWhatsAppTemplate();
+            openModal('quickWhatsAppModal');
+        }
+
+        // Handle selecting a registered client in WhatsApp modal
+        function onWhatsAppClientSelected() {
+            const select = document.getElementById('wa_client_select');
+            const dealId = parseInt(select.value);
+            const nameInput = document.getElementById('wa_custom_name');
+            const phoneInput = document.getElementById('wa_custom_phone');
+
+            if (!dealId) {
+                nameInput.value = '';
+                phoneInput.value = '';
+                applyWhatsAppTemplate();
+                return;
+            }
+
+            const deal = allDeals.find(d => d.id === dealId && d.tenant_id === currentTenantId);
+            if (deal) {
+                nameInput.value = deal.company;
+                phoneInput.value = deal.phone;
+                applyWhatsAppTemplate();
+            }
+        }
+
+        // Template generator for WhatsApp modal
+        function applyWhatsAppTemplate() {
+            const templateType = document.getElementById('wa_template_select').value;
+            const companyName = document.getElementById('wa_custom_name').value.trim() || 'المصنع الموقر';
+            const sender = tenants[currentTenantId] ? tenants[currentTenantId].userName : 'مسؤول المبيعات';
+            const msgBox = document.getElementById('wa_custom_message');
+
+            if (templateType === 'intro') {
+                msgBox.value = `السلام عليكم ورحمة الله وبركاته، تحياتي لحضرتك ولكل فريق عمل ${companyName}.\nمع حضرتك ${sender} بخصوص متابعة متطلبات التوريد والتنسيق معكم. يسعدنا معرفة أنسب وقت للتواصل الهاتفي.`;
+            } else if (templateType === 'quotation') {
+                msgBox.value = `أهلاً بك يا فندم، مرفق لحضراتكم عرض الأسعار والمواصفات الفنية المعتمدة لشركة ${companyName}.\nبرجاء مراجعته وتأكيد الاستلام، ونحن على أتم استعداد لأي استفسارات أو تفاصيل إضافية.`;
+            } else if (templateType === 'meeting') {
+                msgBox.value = `تحياتنا يا فندم، نود التنسيق لتحديد موعد لزيارة ميدانية لمقر ${companyName} لمعاينة خطوط الإنتاج ومطابقة المواصفات المطلوبة.\nهل يناسبكم موعد خلال هذا الأسبوع؟`;
+            } else {
+                msgBox.value = '';
+            }
+        }
+
+        // Submit WhatsApp Custom Form
+        function handleSendCustomWhatsApp(e) {
+            e.preventDefault();
+            const phone = document.getElementById('wa_custom_phone').value.trim();
+            const company = document.getElementById('wa_custom_name').value.trim();
+            const message = document.getElementById('wa_custom_message').value.trim();
+
+            if (!phone) {
+                showToast("برجاء إدخال رقم الهاتف");
+                return;
+            }
+
+            quickWhatsApp(phone, company, message);
+            closeModal('quickWhatsAppModal');
+        }
+
+        // ================= EMAIL WORKFLOW FUNCTIONS =================
+
+        // Direct email sender or launcher
+        function quickEmail(email, company, subject = "", body = "") {
+            const currentSender = tenants[currentTenantId] ? tenants[currentTenantId].userName : 'مسؤول المبيعات';
+            const companyName = tenants[currentTenantId] ? tenants[currentTenantId].companyName : 'منظومتنا';
+            
+            const defSubject = subject || `عرض أسعار وتنسيق توريدات - ${company || 'شركتكم الموقرة'}`;
+            const defBody = body || `عناية السادة مسؤولي المشتريات والتعاقدات في ${company || 'الشركة الموقرة'}،\n\nتحية طيبة وبعد،،\nيسعدنا في ${companyName} التواصل معكم لمتابعة متطلبات التوريد والمواصفات الفنية.\n\nتفضلوا بقبول فائق الاحترام والتقدير،،\n${currentSender}\n${companyName}`;
+
+            if (!email) {
+                // If no email, open modal to let user type it
+                openEmailQuickModal(company);
+                return;
+            }
+
+            const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(defSubject)}&body=${encodeURIComponent(defBody)}`;
+            window.location.href = mailtoUrl;
+            showToast(`جاري فتح برنامج البريد لمراسلة: ${email}`);
+        }
+
+        // Open Email Quick Modal
+        function openEmailQuickModal(presetCompanyName = "") {
+            const select = document.getElementById('em_client_select');
+            select.innerHTML = '<option value="">-- إدخال بريد إلكتروني يدوي --</option>';
+            
+            const tenantDeals = getTenantDeals();
+            tenantDeals.forEach(deal => {
+                const opt = document.createElement('option');
+                opt.value = deal.id;
+                opt.textContent = `${deal.company} (${deal.email || 'بدون إيميل'})`;
+                select.appendChild(opt);
+            });
+
+            if (presetCompanyName) {
+                document.getElementById('em_custom_name').value = presetCompanyName;
+                const matchedDeal = tenantDeals.find(d => d.company === presetCompanyName);
+                if (matchedDeal && matchedDeal.email) {
+                    document.getElementById('em_custom_email').value = matchedDeal.email;
+                    select.value = matchedDeal.id;
+                }
+            }
+
+            applyEmailTemplate();
+            openModal('quickEmailModal');
+        }
+
+        // When a client is picked from the Email dropdown
+        function onEmailClientSelected() {
+            const select = document.getElementById('em_client_select');
+            const dealId = parseInt(select.value);
+            const nameInput = document.getElementById('em_custom_name');
+            const emailInput = document.getElementById('em_custom_email');
+
+            if (!dealId) {
+                nameInput.value = '';
+                emailInput.value = '';
+                applyEmailTemplate();
+                return;
+            }
+
+            const deal = allDeals.find(d => d.id === dealId && d.tenant_id === currentTenantId);
+            if (deal) {
+                nameInput.value = deal.company;
+                emailInput.value = deal.email || '';
+                applyEmailTemplate();
+            }
+        }
+
+        // Template generator for Email modal
+        function applyEmailTemplate() {
+            const templateType = document.getElementById('em_template_select').value;
+            const clientName = document.getElementById('em_custom_name').value.trim() || 'الشركة الموقرة';
+            const sender = tenants[currentTenantId] ? tenants[currentTenantId].userName : 'مسؤول المبيعات';
+            const company = tenants[currentTenantId] ? tenants[currentTenantId].companyName : 'منظومتنا';
+            
+            const subjectBox = document.getElementById('em_custom_subject');
+            const bodyBox = document.getElementById('em_custom_body');
+
+            if (templateType === 'quotation') {
+                subjectBox.value = `عرض أسعار ومواصفات فنية معتمدة - ${clientName}`;
+                bodyBox.value = `عناية إدارة المشتريات والتعاقدات المحترمين في ${clientName}،\n\nتحية طيبة وبعد،،\n\nيسعدنا في ${company} أن نرفق لحضراتكم عرض الأسعار المالي والفني بناءً على طلبكم وجلسة المفاوضات السابقة.\n\nنحيطكم علماً بأن الأسعار سارية لمدة 15 يوماً من تاريخه، وجدول التوريد جاهز للتنفيذ فور اعتماد أمر التوريد (P.O).\n\nمستعدون لأي استفسارات أو تفاصيل إضافية.\n\nمع خالص الشكر والتقدير،،\n${sender}\n${company}`;
+            } else if (templateType === 'followup') {
+                subjectBox.value = `متابعة واستفسار بخصوص عرض التوريد - ${clientName}`;
+                bodyBox.value = `السادة إدارة مصنع / شركة ${clientName}،\n\nتحية طيبة وبعد،،\n\nنود الاستفسار ومتابعة الموقف التنفيذي لعرض الأسعار المقدم من طرفنا الأسبوع الماضي.\nيسعدنا معرفة ما إذا كانت لديكم أي استفسارات أو ملاحظات فنية بخصوص بنود العرض أو شروط السداد لتيسير إجراءات التعاقد.\n\nبانتظار ردكم الكريم،،\n${sender}\n${company}`;
+            } else if (templateType === 'meeting') {
+                subjectBox.value = `طلب تحديد موعد زيارة فنية لمقر مصنع ${clientName}`;
+                bodyBox.value = `السيد مدير المصنع / رئيس قطاع الإنتاج المحترم،\n\nتحية طيبة وبعد،،\n\nنود التنسيق لتحديد موعد لزيارة ميدانية لفريقنا الفني والهندسي لمقر مصنعكم الموقر لمعاينة خطوط الإنتاج ومطابقة المواصفات المطلوبة على الطبيعة وتحديد الكميات بدقة.\n\nنرجو إفادتنا بالموعد الأنسب لكم خلال الأسبوع الجاري.\n\nوتفضلوا بقبول وافر الاحترام،،\n${sender}\n${company}`;
+            } else {
+                subjectBox.value = `مراسلة بخصوص التوريدات - ${clientName}`;
+                bodyBox.value = '';
+            }
+        }
+
+        // Submit Email Form (either mailto: or direct Gmail compose URL)
+        function handleSendCustomEmail(e, mode = 'client') {
+            if (e && e.preventDefault) e.preventDefault();
+            
+            const toEmail = document.getElementById('em_custom_email').value.trim();
+            const subject = document.getElementById('em_custom_subject').value.trim();
+            const body = document.getElementById('em_custom_body').value.trim();
+
+            if (!toEmail) {
+                showToast("برجاء إدخال البريد الإلكتروني للعميل");
+                return;
+            }
+
+            if (mode === 'gmail') {
+                // Open Gmail Web Compose directly
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(toEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(gmailUrl, '_blank');
+                showToast("جاري فتح مسودة البريد في Gmail...");
+            } else {
+                // Open default system email client (Outlook, Apple Mail, etc.)
+                const mailtoUrl = `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailtoUrl;
+                showToast("جاري فتح برنامج البريد في جهازك...");
+            }
+
+            closeModal('quickEmailModal');
+        }
+
+        // Add New Lead Handler (Tags automatically with active tenant_id)
+        function handleCreateLead(e) {
+            e.preventDefault();
+            const companyEl = document.getElementById('m_company');
+            const locationEl = document.getElementById('m_location');
+            const sectorEl = document.getElementById('m_sector');
+            const contactEl = document.getElementById('m_contactName');
+            const phoneEl = document.getElementById('m_phone');
+            const emailEl = document.getElementById('m_email');
+            const valueEl = document.getElementById('m_value');
+            const stageEl = document.getElementById('m_stage');
+
+            const company = companyEl ? companyEl.value.trim() : '';
+            const location = locationEl ? locationEl.value.trim() : '';
+            const sector = sectorEl ? sectorEl.value.trim() : '';
+            const contact = contactEl ? contactEl.value.trim() : '';
+            const phone = phoneEl ? phoneEl.value.trim() : '';
+            const email = emailEl ? emailEl.value.trim() : '';
+            const val = valueEl ? (parseFloat(valueEl.value) || 0) : 0;
+            const stage = stageEl ? stageEl.value : 'lead';
+
+            if (!company || !location || !sector) {
+                showToast("برجاء إدخال اسم الشركة والموقع والقطاع");
+                return;
+            }
+
+            const newObj = {
+                id: Date.now(),
+                tenant_id: currentTenantId, // Row Level Security Tag
+                company: company,
+                location: location,
+                sector: sector,
+                contact: contact,
+                phone: phone,
+                email: email,
+                value: val,
+                stage: stage,
+                notes: "تمت الإضافة حديثاً بواسطة: " + (tenants[currentTenantId] ? tenants[currentTenantId].userName : "المستخدم")
+            };
+
+            allDeals.unshift(newObj);
+            saveToStorage();
+            refreshAllViews();
+            closeModal('newLeadModal');
+            document.getElementById('leadForm').reset();
+            showToast(`تم تسجيل ${newObj.company} بنجاح داخل قاعدة بيانات شركتك`);
+        }
+
+        // AI Assistant Simulation
+        function loadSampleMessage(type) {
+            if (type === 1) {
+                document.getElementById('aiInputPrompt').value = "يا باشمهندس بالنسبة لعرض السعر بتاع الموتورات... السعر معقول بس إحنا في العاشر من رمضان بنستلم وبندفع بعد 60 يوم من الفحص والتشغيل التجريبي، شوف وبلغني.";
+            } else {
+                document.getElementById('aiInputPrompt').value = "محتاجين عرض أسعار عاجل لـ 1000 متر خراطيم هيدروليك ضغط عالي مطابقة للمواصفات الألمانية، التسليم مصنعنا ببرج العرب الأسبوع القادم.";
+            }
+        }
+
+        function analyzeMessageWithAI() {
+            const prompt = document.getElementById('aiInputPrompt').value.trim();
+            if (!prompt) {
+                showToast("من فضلك اكتب أو الصق استفسار العميل أولاً");
+                return;
+            }
+
+            const btn = document.getElementById('aiSubmitBtn');
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> <span>جاري التحليل البيعي الذكي بواسطة Gemini...</span>`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                document.getElementById('aiOutputPlaceholder').classList.add('hidden');
+                const result = document.getElementById('aiResultContent');
+                result.classList.remove('hidden');
+
+                if (prompt.includes('60 يوم') || prompt.includes('دفع') || prompt.includes('أجل')) {
+                    document.getElementById('intentBadge').innerText = "اعتراض على شروط السداد (الآجل)";
+                    document.getElementById('intentBadge').className = "bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold";
+                    
+                    document.getElementById('aiAnalysisText').innerText = "العميل جاهز للشراء والاعتراض ليس في جودة المنتج أو السعر، بل في دورة السيولة النقدية المعتادة بالمصانع (60 يوماً).";
+                    
+                    document.getElementById('aiDraftResponse').innerText = `أهلاً بك يا فندم، وتحياتي لحضرتك ولكل فريق العمل بالمصنع.
+
+مقدرين جداً دورة العمل وسياسة الصرف لديكم. بالنسبة لشرط الـ 60 يوم، عشان نقدر نثبت لحضرتك نفس السعر المميز ونسرّع جدول التوريد من غير أي تأخير، نقترح الآتي:
+1. دفعة تعاقد 25% مع استلام أمر التوريد.
+2. باقي القيمة (75%) بشيك مصرفي يستحق بعد 45 يوماً من الفحص والاستلام بالموقع.
+
+لو العرض ده مناسب لحضرتك نعتمد التوريد ونبدأ التجهيز فوراً.`;
+
+                    document.getElementById('aiRecommendedAction').innerText = "تعديل مرحلة الصفقة إلى (تفاوض وشروط الدفع)، وجدولة اتصال هاتفي اليوم في الساعة 3 عصراً لمناقشة تسوية الدفعة المقدمة.";
+                } else {
+                    document.getElementById('intentBadge').innerText = "نية شراء واستعجال عالية (High Intent)";
+                    document.getElementById('intentBadge').className = "bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold";
+
+                    document.getElementById('aiAnalysisText').innerText = "طلب عاجل بمواصفات دقيقة لمصنع برج العرب. العميل يقارن بين موردين سريعي التسليم، السرعة هنا تحسم الصفقة لصالحك.";
+
+                    document.getElementById('aiDraftResponse').innerText = `تحياتنا لحضرتك يا هندسة.
+المواصفات المطلوبة والمطابقة للمعايير الألمانية متوفرة لدينا وجاهزة للشحن فوراً لموقعكم ببرج العرب. 
+أرسلت لحضرتك العرض الفني والمالي وشهادة المنشأ على الإيميل والواتساب، وجدول التسليم خلال 5 أيام عمل بحد أقصى.`;
+
+                    document.getElementById('aiRecommendedAction').innerText = "إنشاء عرض سعر فوري بصيغة PDF وإرساله مباشرة، ثم متابعة تأكيد الاستلام عبر مكالمة خلال ساعتين.";
+                }
+
+                btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i> <span>تحليل الرسالة وتوليد الرد الذكي الآن</span>`;
+                lucide.createIcons();
+                showToast("تم توليد التحليل والرد المقترح بنجاح ✓");
+            }, 800);
+        }
+
+        function copyDraftToClipboard() {
+            const text = document.getElementById('aiDraftResponse').innerText;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast("تم نسخ مسودة الرد إلى الحافظة");
+                }).catch(() => {
+                    fallbackCopyText(text);
+                });
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("تم نسخ مسودة الرد إلى الحافظة");
+            } catch (err) {
+                showToast("تعذر النسخ تلقائياً");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Automated Lead Enrichment Mock (Tagged to active tenant)
+        function enrichLeadDemo() {
+            showToast("جاري الاستعلام التلقائي من السجل التجاري وقواعد البيانات الصناعية...");
+            setTimeout(() => {
+                const enrichedLead = {
+                    id: Date.now(),
+                    tenant_id: currentTenantId,
+                    company: "مسبك الدلتا للصناعات المعدنية (سجل تجاري رقم 49201)",
+                    location: "العاشر من رمضان",
+                    sector: "صناعات هندسية",
+                    contact: "م/ سامح عبد الرازق (المدير المفوض)",
+                    phone: "+201022334455",
+                    value: 850000,
+                    stage: "lead",
+                    notes: "تم استيراد البيانات والملاءة الائتمانية تلقائياً عبر رقم السجل التجاري."
+                };
+                allDeals.unshift(enrichedLead);
+                saveToStorage();
+                refreshAllViews();
+                showToast("تم العثور على الشركة وحفظها في قاعدة بيانات حسابك ✓");
+            }, 1200);
+        }
+
+        // Supabase Cloud Backend Configuration Simulator
+        function saveCloudConfig() {
+            const url = document.getElementById('supabaseUrlInput').value.trim();
+            const key = document.getElementById('supabaseKeyInput').value.trim();
+            if (url && key) {
+                localStorage.setItem('falcon_supabase_url', url);
+                localStorage.setItem('falcon_supabase_key', key);
+                document.getElementById('cloudStatusDot').className = "absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full badge-pulse";
+                closeModal('cloudConfigModal');
+                showToast("تم حفظ إعدادات Supabase وتفعيل الاتصال السحابي المشفر بنجاح ✓");
+            } else {
+                showToast("برجاء إدخال رابط المشروع ومفتاح الوصول Anon Key");
+            }
+        }
+
+        // Notifications Popover Toggle
+        function toggleNotifications() {
+            const box = document.getElementById('notificationsBox');
+            box.classList.toggle('hidden');
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
+                lucide.createIcons();
+            }
+        }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Toast feedback
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.remove('opacity-0', 'translate-y-20');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-20');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
