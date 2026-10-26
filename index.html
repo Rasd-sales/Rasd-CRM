@@ -79,21 +79,24 @@
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-lg text-xs shadow-sm">
                     <span id="cloudStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm shadow-emerald-400"></span>
-                    <span id="cloudStatusText" class="text-emerald-400 font-bold">متصل سحابياً مع Supabase</span>
+                    <span id="cloudStatusText" class="text-emerald-400 font-bold">سحابي موحد</span>
                 </div>
 
                 <button onclick="openModal('newLeadModal')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-2 rounded-lg flex items-center gap-1.5 transition-all shadow-sm">
                     <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                    <span>إضافة صفقة جديدة</span>
+                    <span>إضافة صفقة</span>
                 </button>
 
                 <div class="flex items-center gap-2 border-r border-slate-800 pr-3 mr-1">
                     <div class="w-8 h-8 rounded-full bg-slate-800 text-brand-400 flex items-center justify-center font-bold text-xs border border-slate-700" id="userAvatar">ر</div>
                     <div class="hidden md:block text-right">
                         <p class="text-xs font-bold leading-tight" id="headerCompanyName">جاري التحميل...</p>
-                        <p class="text-[10px] text-slate-400" id="headerUserName">--</p>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] text-slate-400" id="headerUserName">--</span>
+                            <span class="text-[9px] px-1.5 py-0.2 rounded font-bold" id="headerUserBadge">مدير</span>
+                        </div>
                     </div>
-                    <button onclick="openAuthModal()" title="تبديل أو تسجيل خروج" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors">
+                    <button onclick="logoutSession()" title="تسجيل خروج" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-red-400 transition-colors">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -118,12 +121,30 @@
             </button>
             <button onclick="switchTab('tasks')" class="tab-btn py-3 px-2 text-sm text-slate-600 flex items-center gap-2 whitespace-nowrap" id="tab-tasks">
                 <i data-lucide="check-square" class="w-4 h-4"></i>
-                <span>المتابعات والمكالمات اليومية</span>
+                <span>المتابعات والمكالمات</span>
+            </button>
+            <button onclick="switchTab('team')" class="tab-btn py-3 px-2 text-sm text-slate-600 flex items-center gap-2 whitespace-nowrap" id="tab-team">
+                <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
+                <span>فريق العمل والمناديب</span>
             </button>
             <button onclick="switchTab('ai')" class="tab-btn py-3 px-2 text-sm text-slate-600 flex items-center gap-2 whitespace-nowrap" id="tab-ai">
                 <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
                 <span class="font-bold text-purple-700">مساعد Gemini AI للمبيعات</span>
             </button>
+        </div>
+    </div>
+
+    <!-- Filter Bar For Managers -->
+    <div id="managerFilterBar" class="bg-slate-100/80 border-b border-slate-200 py-2.5 px-4 hidden">
+        <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2 text-xs">
+            <div class="flex items-center gap-2">
+                <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-500"></i>
+                <span class="font-bold text-slate-700">تصفية العرض حسب عضو الفريق:</span>
+                <select id="teamMemberFilter" onchange="handleTeamFilterChange()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 outline-none focus:ring-1 focus:ring-brand-500">
+                    <option value="all">كل أعضاء الفريق (الرؤية الشاملة)</option>
+                </select>
+            </div>
+            <span class="text-slate-500 text-[11px]" id="filterActiveNotice">معروض الآن: كامل نشاط مبيعات الشركة</span>
         </div>
     </div>
 
@@ -227,7 +248,7 @@
                     </button>
                     <button onclick="openModal('newLeadModal')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1 shadow-sm">
                         <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                        <span>إضافة فرصة للمسار</span>
+                        <span>إضافة فرصة</span>
                     </button>
                 </div>
             </div>
@@ -285,15 +306,15 @@
                 <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-4">
                     <div class="relative flex-1">
                         <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-3"></i>
-                        <input type="text" id="leadSearchInput" oninput="renderLeadsTable()" placeholder="ابحث باسم المصنع، المسؤول، الهاتف، أو المنطقة..." class="w-full pr-9 pl-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                        <input type="text" id="leadSearchInput" oninput="renderLeadsTable()" placeholder="ابحث باسم المصنع، المسؤول، المندوب، أو المنطقة..." class="w-full pr-9 pl-4 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <select id="sectorFilter" onchange="renderLeadsTable()" class="border border-slate-300 rounded-xl py-2 px-3 text-xs bg-white focus:ring-2 focus:ring-brand-500 outline-none">
-                            <option value="all">كل القطاعات والأنشطة</option>
+                            <option value="all">كل القطاعات</option>
                         </select>
-                        <button onclick="clearCurrentTenantDeals()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs transition-all" title="مسح الصفقات الحالية فقط">
+                        <button onclick="clearCurrentTenantDeals()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs transition-all">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            <span>مسح جميع الصفقات</span>
+                            <span>مسح الصفقات</span>
                         </button>
                         <button onclick="exportDealsToExcel()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all">
                             <i data-lucide="download" class="w-3.5 h-3.5"></i>
@@ -301,11 +322,11 @@
                         </button>
                         <button onclick="openModal('importExcelModal')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all">
                             <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
-                            <span>استيراد من إكسيل</span>
+                            <span>استيراد</span>
                         </button>
                         <button onclick="openModal('newLeadModal')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap shadow-sm">
                             <i data-lucide="user-plus" class="w-4 h-4"></i>
-                            <span>تسجيل شركة</span>
+                            <span>صفقة جديدة</span>
                         </button>
                     </div>
                 </div>
@@ -315,12 +336,13 @@
                         <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold">
                             <tr>
                                 <th class="p-3">اسم الشركة والمصنع</th>
+                                <th class="p-3">المندوب المسؤول</th>
                                 <th class="p-3">القطاع والنشاط</th>
                                 <th class="p-3">المدينة والمنطقة</th>
                                 <th class="p-3">مسؤول التواصل</th>
                                 <th class="p-3">قيمة الصفقة</th>
                                 <th class="p-3">المرحلة</th>
-                                <th class="p-3 text-center">إجراءات سريعة</th>
+                                <th class="p-3 text-center">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="leadsTableBody" class="divide-y divide-slate-100"></tbody>
@@ -351,9 +373,9 @@
                             <i data-lucide="message-circle" class="w-4 h-4"></i>
                             مراسلة فورية عبر WhatsApp
                         </div>
-                        <p class="text-[11px] text-slate-500 mb-3">إرسال متابعة مباشرة لرقم أي عميل بنقرة واحدة عبر تطبيق أو موقع واتساب المعتمد.</p>
+                        <p class="text-[11px] text-slate-500 mb-3">إرسال متابعة مباشرة لرقم أي عميل بنقرة واحدة عبر واتساب المعتمد.</p>
                         <button onclick="openModal('quickWhatsAppModal')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all">
-                            <i data-lucide="send" class="w-3.5 h-3.5"></i> فتح نافذة مراسلة واتساب
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i> فتح واتساب
                         </button>
                     </div>
 
@@ -362,16 +384,51 @@
                             <i data-lucide="mail" class="w-4 h-4"></i>
                             إرسال عرض أسعار رسمي (Email)
                         </div>
-                        <p class="text-[11px] text-slate-500 mb-3">إرسال إيميل رسمي مع قوالب جاهزة لعروض الأسعار عبر Gmail أو تطبيق البريد.</p>
+                        <p class="text-[11px] text-slate-500 mb-3">إرسال إيميل رسمي مع قوالب جاهزة لعروض الأسعار عبر Gmail أو Outlook.</p>
                         <button onclick="openModal('quickEmailModal')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all">
-                            <i data-lucide="mail" class="w-3.5 h-3.5"></i> فتح محرر البريد الرسمي
+                            <i data-lucide="mail" class="w-3.5 h-3.5"></i> محرر الإيميل
                         </button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 5. TAB: Gemini AI Assistant -->
+        <!-- 5. TAB: Team Management -->
+        <section id="view-team" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-5">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="users" class="w-5 h-5 text-brand-600"></i>
+                            أعضاء فريق المبيعات والمناديب
+                        </h3>
+                        <p class="text-xs text-slate-500">إدارة حسابات المناديب التابعين لنفس المصنع / الشركة ومتابعة أداء كل عضو</p>
+                    </div>
+                    <button onclick="openModal('newTeamMemberModal')" id="btnAddMemberBtn" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        <span>إضافة مندوب جديد للفريق</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">العضو / المندوب</th>
+                                <th class="p-3">البريد الإلكتروني</th>
+                                <th class="p-3">الرتبة والصلاحية</th>
+                                <th class="p-3">عدد الصفقات</th>
+                                <th class="p-3">إجمالي القيمة المفتوحة</th>
+                                <th class="p-3">الصفقات المكتملة (Won)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. TAB: Gemini AI Assistant -->
         <section id="view-ai" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-4xl mx-auto">
                 <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
@@ -380,25 +437,25 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-800">مساعد Gemini AI الذكي لمسؤولي المبيعات</h3>
-                        <p class="text-xs text-slate-500">حلل استفسارات العملاء والاعتراضات على شروط الدفع والأسعار وصغ رداً بيعياً مخصصاً</p>
+                        <p class="text-xs text-slate-500">صغ رداً بيعياً مخصصاً للاعتراضات على شروط الدفع والأسعار</p>
                     </div>
                 </div>
 
                 <div class="space-y-3">
                     <label class="block text-xs font-bold text-slate-700">رسالة العميل أو ملخص المكالمة:</label>
-                    <textarea id="aiCustomerMessage" rows="4" placeholder="مثال: العميل في مصنع البلاستيك بيقول إنه معجب بالعرض الفني، لكن الأسعار أغلى من المنافس بـ 15% وعاوز تسهيلات دفع 90 يوم بدل 30 يوم..." class="w-full p-3 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-purple-500 outline-none leading-relaxed"></textarea>
+                    <textarea id="aiCustomerMessage" rows="4" placeholder="اكتب اعتراض العميل هنا..." class="w-full p-3 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-purple-500 outline-none leading-relaxed"></textarea>
                     
                     <div class="flex flex-wrap gap-2 text-xs">
-                        <span class="text-slate-500 font-medium">اقتراحات سريعة للاختبار:</span>
-                        <button onclick="fillAiExample(1)" class="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-lg hover:bg-purple-100 transition-colors">اعتراض: الدفع الآجل</button>
-                        <button onclick="fillAiExample(2)" class="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-lg hover:bg-purple-100 transition-colors">اعتراض: السعر غالي</button>
-                        <button onclick="fillAiExample(3)" class="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-lg hover:bg-purple-100 transition-colors">طلب مواصفات فنية إضافية</button>
+                        <span class="text-slate-500 font-medium">اقتراحات سريعة:</span>
+                        <button onclick="fillAiExample(1)" class="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-lg hover:bg-purple-100">اعتراض: الدفع الآجل</button>
+                        <button onclick="fillAiExample(2)" class="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-lg hover:bg-purple-100">اعتراض: السعر غالي</button>
+                        <button onclick="fillAiExample(3)" class="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-lg hover:bg-purple-100">مواصفات إضافية</button>
                     </div>
 
                     <div class="flex justify-end pt-2">
                         <button onclick="generateAiSalesResponse()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs py-2.5 px-6 rounded-xl flex items-center gap-2 shadow-sm transition-all" id="aiSubmitBtn">
                             <i data-lucide="sparkles" class="w-4 h-4"></i>
-                            <span>تحليل الرسالة وتوليد الرد والخطوة القادمة</span>
+                            <span>تحليل الرسالة وتوليد الرد</span>
                         </button>
                     </div>
                 </div>
@@ -407,7 +464,7 @@
                     <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
                         <h4 class="text-xs font-bold text-slate-700 flex items-center gap-2 mb-3">
                             <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
-                            التحليل النفسي والبيعي لموقف العميل:
+                            التحليل النفسي والبيعي:
                         </h4>
                         <p class="text-xs text-slate-600 leading-relaxed" id="aiPsychologicalAnalysis"></p>
                     </div>
@@ -416,9 +473,9 @@
                         <div class="flex items-center justify-between mb-3">
                             <h4 class="text-xs font-bold text-purple-900 flex items-center gap-2">
                                 <i data-lucide="message-square" class="w-4 h-4 text-purple-700"></i>
-                                مسودة الرد المقترح (واتساب / إيميل):
+                                مسودة الرد المقترح:
                             </h4>
-                            <button onclick="safeCopyToClipboard(document.getElementById('aiDraftReply').innerText, 'تم نسخ مسودة الرد بنجاح')" class="text-xs text-purple-700 hover:text-purple-900 font-bold flex items-center gap-1">
+                            <button onclick="safeCopyToClipboard(document.getElementById('aiDraftReply').innerText, 'تم نسخ مسودة الرد')" class="text-xs text-purple-700 hover:text-purple-900 font-bold flex items-center gap-1">
                                 <i data-lucide="copy" class="w-3.5 h-3.5"></i> نسخ النص
                             </button>
                         </div>
@@ -438,6 +495,46 @@
     </main>
 
     <!-- MODALS SECTION -->
+
+    <!-- Modal: Add Team Member (For Manager) -->
+    <div id="newTeamMemberModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4" style="display: none;">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-4 h-4 text-brand-600"></i>
+                    إضافة عضو جديد لفريق المبيعات
+                </h3>
+                <button onclick="closeModal('newTeamMemberModal')" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form onsubmit="handleCreateTeamMember(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المندوب / العضو *</label>
+                    <input type="text" id="tm_name" required placeholder="مثال: م/ كريم مصطفى" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني لدخوله *</label>
+                    <input type="email" id="tm_email" required placeholder="karim@company.com" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور للدخول *</label>
+                    <input type="password" id="tm_pass" required placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">الصلاحية والرتبة</label>
+                    <select id="tm_role" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white outline-none">
+                        <option value="rep">مندوب مبيعات (يرى صفقاته فقط)</option>
+                        <option value="admin">مدير مبيعات (يرى كامل الفريق والتقارير)</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('newTeamMemberModal')" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50">إلغاء</button>
+                    <button type="submit" id="btnSubmitNewMember" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-sm">حفظ وإتاحة الدخول</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Modal 0: Import From Excel Modal -->
     <div id="importExcelModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4" style="display: none;">
@@ -470,7 +567,7 @@
 
                 <div class="border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/30 rounded-2xl p-6 text-center transition-all cursor-pointer" onclick="document.getElementById('excelFileInput').click()">
                     <i data-lucide="upload-cloud" class="w-10 h-10 text-emerald-600 mx-auto mb-2"></i>
-                    <p class="text-xs font-bold text-slate-800">اضغط هنا لاختيار ملف الإكسيل أو اسحبه هنا</p>
+                    <p class="text-xs font-bold text-slate-800">اضغط هنا لاختيار ملف الإكسيل</p>
                     <p class="text-[10px] text-slate-500 mt-1">يدعم ملفات .xlsx أو .xls أو .csv</p>
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelFileUpload(event)">
                 </div>
@@ -481,7 +578,6 @@
                             <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
                             تم استخراج: <span id="excelPreviewCount" class="font-black">0</span> عميل بنجاح
                         </span>
-                        <span class="text-[10px] text-slate-400">معاينة أول 3 شركات</span>
                     </div>
 
                     <div class="overflow-x-auto border border-slate-200 rounded-xl max-h-40">
@@ -490,7 +586,6 @@
                                 <tr>
                                     <th class="p-2">الشركة</th>
                                     <th class="p-2">القطاع</th>
-                                    <th class="p-2">المنطقة</th>
                                     <th class="p-2">الهاتف</th>
                                     <th class="p-2">القيمة</th>
                                 </tr>
@@ -503,7 +598,7 @@
                 <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
                     <button type="button" onclick="closeModal('importExcelModal')" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50">إلغاء</button>
                     <button type="button" id="btnConfirmImport" onclick="commitExcelImport()" disabled class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4"></i> اعتماد واستيراد للمنظومة والسحابة
+                        <i data-lucide="check" class="w-4 h-4"></i> اعتماد واستيراد للمنظومة
                     </button>
                 </div>
             </div>
@@ -551,9 +646,15 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني للعميل</label>
-                    <input type="email" id="m_email" placeholder="purchasing@company.com" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني للعميل</label>
+                        <input type="email" id="m_email" placeholder="purchasing@company.com" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none text-left" dir="ltr">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المندوب المسؤول عن المتابعة</label>
+                        <select id="m_assigned" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-brand-500 outline-none"></select>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -692,7 +793,7 @@
                         <i data-lucide="external-link" class="w-3.5 h-3.5"></i> فتح في Gmail
                     </button>
                     <button onclick="sendViaDefaultMail()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
-                        <i data-lucide="mail" class="w-3.5 h-3.5"></i> تطبيق البريد (Outlook)
+                        <i data-lucide="mail" class="w-3.5 h-3.5"></i> تطبيق البريد
                     </button>
                 </div>
             </div>
@@ -722,8 +823,8 @@
                         <span class="font-bold text-slate-700" id="detail_stage">تواصل مبدئي</span>
                     </div>
                     <div>
-                        <span class="text-slate-500 block mb-0.5">الموقع:</span>
-                        <span class="font-medium text-slate-700" id="detail_location">غير محدد</span>
+                        <span class="text-slate-500 block mb-0.5">المندوب المسؤول:</span>
+                        <span class="font-bold text-blue-600" id="detail_assigned">الكل</span>
                     </div>
                     <div>
                         <span class="text-slate-500 block mb-0.5">مسؤول التواصل:</span>
@@ -746,23 +847,23 @@
 
                 <div class="flex flex-col gap-2 pt-2">
                     <button onclick="openWhatsAppForCurrentDetail()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i> مراسلة عبر واتساب مباشرة
+                        <i data-lucide="message-circle" class="w-4 h-4"></i> مراسلة عبر واتساب
                     </button>
                     <button onclick="openEmailForCurrentDetail()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm">
-                        <i data-lucide="mail" class="w-4 h-4"></i> إرسال بريد إلكتروني رسمي (Email)
+                        <i data-lucide="mail" class="w-4 h-4"></i> إرسال بريد إلكتروني
                     </button>
                     <button onclick="prepareAiForDetail()" class="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 border border-purple-200">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i> تجهيز رد ذكي بواسطة AI لهذا العميل
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> صياغة رد ذكي لهذا العميل
                     </button>
                     <button onclick="deleteCurrentDetailDeal()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs py-2 px-4 rounded-xl flex items-center justify-center gap-1.5 border border-red-200 transition-all mt-1">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> حذف هذه الصفقة من المنظومة
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> حذف الصفقة
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal 7: Authentication Modal (قفل ودخول موحد) -->
+    <!-- Modal 7: Authentication Modal -->
     <div id="authModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
             <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-5">
@@ -802,7 +903,7 @@
                     <input type="text" id="regCompany" placeholder="مثال: مصنع النصر للتوريدات" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم / مسؤول المبيعات *</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المسؤول / مدير المبيعات *</label>
                     <input type="text" id="regUser" placeholder="م/ أحمد سامي" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-500 outline-none">
                 </div>
                 <div>
@@ -832,11 +933,13 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50Y2pqZHNqcXlleWloeHZjeWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NTUxMzcsImV4cCI6MjEwODUzMTEzN30.pASadXPM2ljq4iVllpigj5eSo_XYfV1cEdw0y6GBMOw";
 
         let supabaseClient = null;
-        let currentTenant = null;
-        let deals = [];
-        let tasks = [];
+        let currentUser = null; 
+        let teamMembers = [];
+        let allDeals = [];
+        let allTasks = [];
         let parsedExcelDeals = [];
         let currentDetailDealId = null;
+        let selectedRepFilter = 'all'; 
 
         document.addEventListener('DOMContentLoaded', () => {
             initSupabase();
@@ -855,23 +958,25 @@
         }
 
         async function checkAutoLogin() {
-            const savedTenant = localStorage.getItem('rasd_active_session_v2');
-            if (savedTenant) {
+            const savedSession = localStorage.getItem('rasd_active_session_v3');
+            if (savedSession) {
                 try {
-                    currentTenant = JSON.parse(savedTenant);
-                    refreshTenantHeader();
+                    currentUser = JSON.parse(savedSession);
+                    refreshUserHeader();
                     closeModal('authModal');
-                    await loadDataFromCloud();
+                    await loadCompanyData();
                     return;
                 } catch (e) {
-                    localStorage.removeItem('rasd_active_session_v2');
+                    localStorage.removeItem('rasd_active_session_v3');
                 }
             }
-            openAuthModal();
+            openModal('authModal');
         }
 
-        function openAuthModal() {
-            openModal('authModal');
+        function logoutSession() {
+            localStorage.removeItem('rasd_active_session_v3');
+            currentUser = null;
+            location.reload();
         }
 
         function switchAuthTab(type) {
@@ -910,31 +1015,31 @@
                     .maybeSingle();
 
                 if (error || !data) {
-                    showToast("البريد الإلكتروني أو كلمة المرور غير صحيحة، أو الحساب غير مسجل بعد");
-                    btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> دخول ومزامنة البيانات من السحابة';
+                    showToast("البيانات غير صحيحة أو الحساب غير مسجل");
+                    btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> دخول ومزامنة البيانات';
                     lucide.createIcons();
                     return;
                 }
 
-                currentTenant = {
+                currentUser = {
                     id: data.id,
+                    company_id: data.company_id || data.id,
                     company: data.company,
                     user: data.user_name,
-                    email: data.email
+                    email: data.email,
+                    role: data.role || 'admin'
                 };
 
-                localStorage.setItem('rasd_active_session_v2', JSON.stringify(currentTenant));
-                refreshTenantHeader();
+                localStorage.setItem('rasd_active_session_v3', JSON.stringify(currentUser));
+                refreshUserHeader();
                 closeModal('authModal');
-                showToast(`مرحباً بك في منظومة (${currentTenant.company}) ✓`);
-                
-                await loadDataFromCloud();
+                showToast(`مرحباً بك في (${currentUser.company}) ✓`);
+                await loadCompanyData();
 
             } catch (err) {
-                console.error("Login Exception:", err);
-                showToast("حدث خطأ في الاتصال بقاعدة البيانات السحابية");
+                showToast("حدث خطأ في الاتصال بالسحابة");
             } finally {
-                btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> دخول ومزامنة البيانات من السحابة';
+                btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> دخول ومزامنة البيانات';
                 lucide.createIcons();
             }
         }
@@ -946,118 +1051,227 @@
             const pass = document.getElementById('regPassword').value.trim();
 
             if (!company || !user || !email || !pass) {
-                showToast("يرجى ملء جميع الحقول المطلوبة");
+                showToast("يرجى ملء جميع الحقول");
                 return;
             }
 
             const btn = document.getElementById('btnRegisterSubmit');
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري حفظ المستخدم في السحابة...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري الإنشاء...';
             lucide.createIcons();
 
             try {
                 if (!supabaseClient) initSupabase();
 
-                const { data: existingUser } = await supabaseClient
-                    .from('tenants')
-                    .select('email')
-                    .eq('email', email)
-                    .maybeSingle();
-
-                if (existingUser) {
-                    showToast("هذا الحساب مسجل بالفعل! انتقل لتبويب (تسجيل الدخول)");
+                const { data: exists } = await supabaseClient.from('tenants').select('email').eq('email', email).maybeSingle();
+                if (exists) {
+                    showToast("هذا الحساب مسجل بالفعل، يرجى تسجيل الدخول");
                     switchAuthTab('login');
                     document.getElementById('loginEmail').value = email;
-                    btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الحساب وحفظه سحابياً';
-                    lucide.createIcons();
                     return;
                 }
 
-                const fixedTenantId = emailToTenantId(email);
+                const companyTenantId = emailToTenantId(email);
 
-                const newTenantRecord = {
-                    id: fixedTenantId,
+                const newTenant = {
+                    id: companyTenantId,
+                    company_id: companyTenantId,
                     company: company,
                     user_name: user,
                     email: email,
-                    password: pass
+                    password: pass,
+                    role: 'admin' // أول حساب يتم تسجيله هو المدير
                 };
 
-                const { error: insertError } = await supabaseClient
-                    .from('tenants')
-                    .insert([newTenantRecord]);
-
-                if (insertError) {
-                    showToast("تعذر إنشاء الحساب في السحابة: " + insertError.message);
-                    btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الحساب وحفظه سحابياً';
-                    lucide.createIcons();
+                const { error } = await supabaseClient.from('tenants').insert([newTenant]);
+                if (error) {
+                    showToast("خطأ أثناء إنشاء الحساب: " + error.message);
                     return;
                 }
 
-                currentTenant = {
-                    id: fixedTenantId,
+                currentUser = {
+                    id: companyTenantId,
+                    company_id: companyTenantId,
                     company: company,
                     user: user,
-                    email: email
+                    email: email,
+                    role: 'admin'
                 };
 
-                localStorage.setItem('rasd_active_session_v2', JSON.stringify(currentTenant));
-                refreshTenantHeader();
+                localStorage.setItem('rasd_active_session_v3', JSON.stringify(currentUser));
+                refreshUserHeader();
                 closeModal('authModal');
-                showToast(`تم إنشاء حساب المستخدم (${user}) بنجاح ✓`);
-
-                deals = [];
-                tasks = [];
-                refreshAllViews();
+                showToast(`تم إنشاء حساب شركة (${company}) كمسؤول بنجاح ✓`);
+                await loadCompanyData();
 
             } catch (err) {
-                console.error("Register Error:", err);
-                showToast("حدث خطأ أثناء الاتصال بالسحابة");
+                showToast("حدث خطأ في الاتصال");
             } finally {
                 btn.innerHTML = '<i data-lucide="plus-circle" class="w-4 h-4"></i> إنشاء الحساب وحفظه سحابياً';
                 lucide.createIcons();
             }
         }
 
-        async function loadDataFromCloud() {
-            if (!supabaseClient || !currentTenant) return;
+        // إضافة مندوب جديد من قبل المدير
+        async function handleCreateTeamMember(e) {
+            e.preventDefault();
+            const name = document.getElementById('tm_name').value.trim();
+            const email = document.getElementById('tm_email').value.trim().toLowerCase();
+            const pass = document.getElementById('tm_pass').value.trim();
+            const role = document.getElementById('tm_role').value;
+
+            if (!name || !email || !pass) return;
+
+            const btn = document.getElementById('btnSubmitNewMember');
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري الإضافة...';
+            lucide.createIcons();
 
             try {
-                const { data: cloudDeals, error: dError } = await supabaseClient
-                    .from('deals')
-                    .select('*')
-                    .eq('tenant_id', currentTenant.id)
-                    .order('created_at', { ascending: false });
+                const memberId = 'user_' + Date.now();
+                const newMember = {
+                    id: memberId,
+                    company_id: currentUser.company_id,
+                    company: currentUser.company,
+                    user_name: name,
+                    email: email,
+                    password: pass,
+                    role: role
+                };
 
-                deals = (!dError && cloudDeals) ? cloudDeals : [];
+                const { error } = await supabaseClient.from('tenants').insert([newMember]);
+                if (error) {
+                    showToast("تعذر إضافة المندوب: " + error.message);
+                    return;
+                }
 
-                const { data: cloudTasks, error: tError } = await supabaseClient
-                    .from('tasks')
-                    .select('*')
-                    .eq('tenant_id', currentTenant.id)
-                    .order('created_at', { ascending: false });
+                showToast(`تم إضافة المندوب (${name}) للفريق بنجاح ✓`);
+                closeModal('newTeamMemberModal');
+                e.target.reset();
+                await loadCompanyData();
 
-                tasks = (!tError && cloudTasks) ? cloudTasks : [];
-
-                refreshAllViews();
-
-            } catch (e) {
-                console.warn("Cloud load error:", e);
+            } catch (err) {
+                showToast("حدث خطأ أثناء الإضافة");
+            } finally {
+                btn.innerHTML = 'حفظ وإتاحة الدخول';
             }
         }
 
-        function refreshTenantHeader() {
-            if (!currentTenant) return;
-            const cName = document.getElementById('headerCompanyName');
-            const uName = document.getElementById('headerUserName');
-            const avatar = document.getElementById('userAvatar');
+        async function loadCompanyData() {
+            if (!supabaseClient || !currentUser) return;
 
-            if (cName) cName.innerText = currentTenant.company;
-            if (uName) uName.innerText = currentTenant.user;
-            if (avatar) avatar.innerText = (currentTenant.company || 'ر').charAt(0);
+            try {
+                // 1. جلب أعضاء فريق الشركة بالكامل
+                const { data: teamData } = await supabaseClient
+                    .from('tenants')
+                    .select('*')
+                    .eq('company_id', currentUser.company_id);
+
+                teamMembers = teamData || [currentUser];
+
+                // 2. جلب صفقات الشركة
+                const { data: dealsData } = await supabaseClient
+                    .from('deals')
+                    .select('*')
+                    .eq('tenant_id', currentUser.company_id)
+                    .order('created_at', { ascending: false });
+
+                allDeals = dealsData || [];
+
+                // 3. جلب مهام الشركة
+                const { data: tasksData } = await supabaseClient
+                    .from('tasks')
+                    .select('*')
+                    .eq('tenant_id', currentUser.company_id)
+                    .order('created_at', { ascending: false });
+
+                allTasks = tasksData || [];
+
+                setupRolePermissions();
+                refreshAllViews();
+
+            } catch (e) {
+                console.warn("Load Company Data Error:", e);
+            }
+        }
+
+        function setupRolePermissions() {
+            const isAdmin = currentUser.role === 'admin';
+            const filterBar = document.getElementById('managerFilterBar');
+            const teamTab = document.getElementById('tab-team');
+            const addMemberBtn = document.getElementById('btnAddMemberBtn');
+
+            if (isAdmin) {
+                if (filterBar) filterBar.classList.remove('hidden');
+                if (teamTab) teamTab.classList.remove('hidden');
+                if (addMemberBtn) addMemberBtn.classList.remove('hidden');
+
+                // تعبئة قائمة فلاتر أعضاء الفريق للمدير
+                const selectFilter = document.getElementById('teamMemberFilter');
+                if (selectFilter) {
+                    selectFilter.innerHTML = '<option value="all">كل أعضاء الفريق (الرؤية الشاملة للمصنع)</option>' + 
+                        teamMembers.map(m => `<option value="${m.user_name}">${m.user_name} (${m.role === 'admin' ? 'مدير' : 'مندوب'})</option>`).join('');
+                    selectFilter.value = selectedRepFilter;
+                }
+            } else {
+                // المندوب يرى نفسه فقط ويخفى عنه الفلتر العام وإدارة الفريق
+                if (filterBar) filterBar.classList.add('hidden');
+                if (teamTab) teamTab.classList.add('hidden');
+                if (addMemberBtn) addMemberBtn.classList.add('hidden');
+                selectedRepFilter = currentUser.user;
+            }
+        }
+
+        function handleTeamFilterChange() {
+            selectedRepFilter = document.getElementById('teamMemberFilter').value;
+            const notice = document.getElementById('filterActiveNotice');
+            if (notice) {
+                notice.innerText = selectedRepFilter === 'all' 
+                    ? "معروض الآن: كامل نشاط مبيعات الشركة" 
+                    : `معروض الآن: نشاط المندوب (${selectedRepFilter}) فقط`;
+            }
+            refreshAllViews();
+        }
+
+        // تصفية الصفقات وفق الصلاحية أو الفلتر النشط
+        function getFilteredDeals() {
+            if (currentUser.role === 'rep') {
+                return allDeals.filter(d => d.assigned_to === currentUser.user);
+            }
+            if (selectedRepFilter !== 'all') {
+                return allDeals.filter(d => d.assigned_to === selectedRepFilter);
+            }
+            return allDeals;
+        }
+
+        function getFilteredTasks() {
+            if (currentUser.role === 'rep') {
+                return allTasks.filter(t => t.assigned_to === currentUser.user);
+            }
+            if (selectedRepFilter !== 'all') {
+                return allTasks.filter(t => t.assigned_to === selectedRepFilter);
+            }
+            return allTasks;
+        }
+
+        function refreshUserHeader() {
+            if (!currentUser) return;
+            document.getElementById('headerCompanyName').innerText = currentUser.company;
+            document.getElementById('headerUserName').innerText = currentUser.user;
+            document.getElementById('userAvatar').innerText = (currentUser.user || 'ر').charAt(0);
+            
+            const badge = document.getElementById('headerUserBadge');
+            if (badge) {
+                if (currentUser.role === 'admin') {
+                    badge.innerText = 'مدير مبيعات';
+                    badge.className = 'text-[9px] px-1.5 py-0.5 rounded font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+                } else {
+                    badge.innerText = 'مندوب مبيعات';
+                    badge.className = 'text-[9px] px-1.5 py-0.5 rounded font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30';
+                }
+            }
         }
 
         function switchTab(tabId) {
-            ['dashboard', 'kanban', 'leads', 'tasks', 'ai'].forEach(t => {
+            ['dashboard', 'kanban', 'leads', 'tasks', 'team', 'ai'].forEach(t => {
                 const v = document.getElementById(`view-${t}`);
                 const b = document.getElementById(`tab-${t}`);
                 if (v) v.classList.toggle('hidden', t !== tabId);
@@ -1071,11 +1285,13 @@
             renderKanban();
             renderLeadsTable();
             renderTasks();
+            renderTeamTable();
             populateSelectBoxes();
             lucide.createIcons();
         }
 
         function renderDashboard() {
+            const deals = getFilteredDeals();
             const total = deals.reduce((sum, d) => sum + Number(d.value || 0), 0);
             const won = deals.filter(d => d.stage === 'won').reduce((sum, d) => sum + Number(d.value || 0), 0);
             const wonCount = deals.filter(d => d.stage === 'won').length;
@@ -1089,7 +1305,7 @@
             const recentContainer = document.getElementById('dashboardRecentDeals');
             if (recentContainer) {
                 if (deals.length === 0) {
-                    recentContainer.innerHTML = '<p class="text-xs text-slate-400 py-6 text-center">لا توجد صفقات مسجلة لهذه الشركة بعد. اضغط "إضافة صفقة جديدة" أو استورد من إكسيل للبدء.</p>';
+                    recentContainer.innerHTML = '<p class="text-xs text-slate-400 py-6 text-center">لا توجد صفقات معروضة لهذا الفلتر حالياً.</p>';
                 } else {
                     recentContainer.innerHTML = deals.slice(0, 4).map(d => `
                         <div class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-100 transition-all text-xs">
@@ -1099,7 +1315,7 @@
                                 </div>
                                 <div>
                                     <h5 class="font-bold text-slate-800">${d.company}</h5>
-                                    <p class="text-[10px] text-slate-400">${d.sector || ''} • ${d.location || ''}</p>
+                                    <p class="text-[10px] text-slate-400">${d.sector || ''} • المسؤول: <span class="text-blue-600 font-bold">${d.assigned_to || 'الكل'}</span></p>
                                 </div>
                             </div>
                             <div class="text-left">
@@ -1129,6 +1345,7 @@
 
         function renderKanban() {
             const stages = ['lead', 'quote', 'negotiation', 'won'];
+            const deals = getFilteredDeals();
 
             stages.forEach(st => {
                 const countElem = document.getElementById(`count-${st}`);
@@ -1148,7 +1365,10 @@
                                         <i data-lucide="trash" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </div>
-                                <p class="text-[11px] text-slate-500">${d.contact || 'مسؤول التواصل'} • ${d.location || ''}</p>
+                                <div class="flex items-center justify-between text-[11px] text-slate-500">
+                                    <span>${d.location || 'مصر'}</span>
+                                    <span class="bg-blue-50 text-blue-700 font-bold px-1.5 py-0.2 rounded text-[10px]">${d.assigned_to || 'غير محدد'}</span>
+                                </div>
                                 <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
                                     <span class="font-black text-brand-700">${Number(d.value || 0).toLocaleString('ar-EG')} ج.م</span>
                                     <div class="flex items-center gap-1">
@@ -1165,7 +1385,7 @@
 
         async function moveDealStage(dealId, direction) {
             const stages = ['lead', 'quote', 'negotiation', 'won'];
-            const deal = deals.find(d => d.id === dealId);
+            const deal = allDeals.find(d => d.id === dealId);
             if (!deal) return;
 
             const currentIndex = stages.indexOf(deal.stage);
@@ -1181,13 +1401,14 @@
                     try {
                         await supabaseClient.from('deals').update({ stage: deal.stage }).eq('id', deal.id);
                     } catch (err) {
-                        console.warn("Supabase stage sync error:", err);
+                        console.warn("Stage update error:", err);
                     }
                 }
             }
         }
 
         function renderLeadsTable() {
+            const deals = getFilteredDeals();
             const search = (document.getElementById('leadSearchInput')?.value || '').toLowerCase();
             const sectorFilter = document.getElementById('sectorFilter')?.value || 'all';
             const tbody = document.getElementById('leadsTableBody');
@@ -1197,19 +1418,21 @@
                 const matchSearch = d.company.toLowerCase().includes(search) || 
                                     (d.contact && d.contact.toLowerCase().includes(search)) || 
                                     (d.phone && d.phone.includes(search)) || 
+                                    (d.assigned_to && d.assigned_to.toLowerCase().includes(search)) ||
                                     (d.location && d.location.toLowerCase().includes(search));
                 const matchSector = sectorFilter === 'all' || d.sector === sectorFilter;
                 return matchSearch && matchSector;
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-slate-400 text-xs">لا توجد شركات أو عملاء مسجلين لهذه الشركة بعد</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">لا توجد صفقات مسجلة</td></tr>';
                 return;
             }
 
             tbody.innerHTML = filtered.map(d => `
                 <tr class="hover:bg-slate-50/80 transition-colors">
                     <td class="p-3 font-bold text-slate-800 cursor-pointer hover:text-brand-600" onclick="showLeadDetails(${d.id})">${d.company}</td>
+                    <td class="p-3 font-bold text-blue-600"><span class="bg-blue-50 px-2 py-0.5 rounded">${d.assigned_to || 'غير مسند'}</span></td>
                     <td class="p-3 text-slate-500">${d.sector || '--'}</td>
                     <td class="p-3 text-slate-500">${d.location || '--'}</td>
                     <td class="p-3 text-slate-600">${d.contact || '--'}</td>
@@ -1226,7 +1449,7 @@
                             <button onclick="showLeadDetails(${d.id})" title="التفاصيل" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg">
                                 <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                             </button>
-                            <button onclick="deleteSingleDeal(${d.id})" title="حذف الشركة" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg">
+                            <button onclick="deleteSingleDeal(${d.id})" title="حذف" class="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
@@ -1236,22 +1459,51 @@
             lucide.createIcons();
         }
 
+        // جدول متابعة أداء المناديب في تبويب "فريق العمل"
+        function renderTeamTable() {
+            const tbody = document.getElementById('teamTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = teamMembers.map(m => {
+                const memberDeals = allDeals.filter(d => d.assigned_to === m.user_name);
+                const totalVal = memberDeals.reduce((sum, d) => sum + Number(d.value || 0), 0);
+                const wonVal = memberDeals.filter(d => d.stage === 'won').reduce((sum, d) => sum + Number(d.value || 0), 0);
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-3 font-bold text-slate-800 flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">${m.user_name.charAt(0)}</div>
+                            <span>${m.user_name}</span>
+                        </td>
+                        <td class="p-3 text-slate-500 font-mono">${m.email}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${m.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
+                                ${m.role === 'admin' ? 'مدير مبيعات' : 'مندوب مبيعات'}
+                            </span>
+                        </td>
+                        <td class="p-3 font-bold text-slate-700">${memberDeals.length} صفقة</td>
+                        <td class="p-3 font-bold text-slate-800">${totalVal.toLocaleString('ar-EG')} ج.م</td>
+                        <td class="p-3 font-black text-emerald-600">${wonVal.toLocaleString('ar-EG')} ج.م</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         async function deleteSingleDeal(dealId) {
-            const targetDeal = deals.find(d => d.id === dealId);
-            if (!targetDeal) return;
+            const target = allDeals.find(d => d.id === dealId);
+            if (!target) return;
 
-            const confirmed = confirm(`هل أنت متأكد من حذف (${targetDeal.company}) نهائياً من المنظومة؟`);
-            if (!confirmed) return;
+            if (!confirm(`هل أنت متأكد من حذف صفقة (${target.company})؟`)) return;
 
-            deals = deals.filter(d => d.id !== dealId);
+            allDeals = allDeals.filter(d => d.id !== dealId);
             refreshAllViews();
-            showToast(`تم حذف (${targetDeal.company}) بنجاح ✓`);
+            showToast("تم حذف الصفقة بنجاح ✓");
 
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('deals').delete().eq('id', dealId);
-                } catch (err) {
-                    console.warn("Supabase delete error:", err);
+                } catch (e) {
+                    console.warn("Delete deal error:", e);
                 }
             }
         }
@@ -1264,28 +1516,24 @@
         }
 
         async function clearCurrentTenantDeals() {
-            if (deals.length === 0) {
-                showToast("لا توجد صفقات لمسحها");
-                return;
-            }
+            if (allDeals.length === 0) return;
+            if (!confirm("تحذير: سيتم مسح صفقات الشركة بالكامل. هل تريد المتابعة؟")) return;
 
-            const confirmed = confirm(`تحذير: سيتم مسح جميع صفقات الشركة الحالية (${deals.length} صفقة). هل تريد المتابعة؟`);
-            if (!confirmed) return;
-
-            deals = [];
+            allDeals = [];
             refreshAllViews();
-            showToast("تم مسح جميع الصفقات بنجاح ✓");
+            showToast("تم مسح الصفقات بنجاح ✓");
 
-            if (supabaseClient && currentTenant) {
+            if (supabaseClient && currentUser) {
                 try {
-                    await supabaseClient.from('deals').delete().eq('tenant_id', currentTenant.id);
-                } catch (err) {
-                    console.warn("Supabase bulk delete error:", err);
+                    await supabaseClient.from('deals').delete().eq('tenant_id', currentUser.company_id);
+                } catch (e) {
+                    console.warn("Bulk delete error:", e);
                 }
             }
         }
 
         function renderTasks() {
+            const tasks = getFilteredTasks();
             const list = document.getElementById('tasksList');
             if (!list) return;
 
@@ -1300,7 +1548,7 @@
                         <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTaskDone(${t.id})" class="rounded text-brand-600 focus:ring-brand-500 w-4 h-4 cursor-pointer">
                         <div>
                             <p class="font-bold ${t.done ? 'line-through text-slate-400' : 'text-slate-800'}">${t.text}</p>
-                            <span class="text-[10px] text-slate-400">${t.company || ''} • ${t.date || ''}</span>
+                            <span class="text-[10px] text-slate-400">${t.company || ''} • المسؤول: ${t.assigned_to || 'الكل'} • ${t.date || ''}</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
@@ -1315,7 +1563,7 @@
         }
 
         async function toggleTaskDone(taskId) {
-            const task = tasks.find(t => t.id === taskId);
+            const task = allTasks.find(t => t.id === taskId);
             if (task) {
                 task.done = !task.done;
                 renderTasks();
@@ -1323,31 +1571,28 @@
                     try {
                         await supabaseClient.from('tasks').update({ done: task.done }).eq('id', task.id);
                     } catch (e) {
-                        console.warn("Supabase task sync error:", e);
+                        console.warn("Task update error:", e);
                     }
                 }
             }
         }
 
         async function deleteSingleTask(taskId) {
-            tasks = tasks.filter(t => t.id !== taskId);
+            allTasks = allTasks.filter(t => t.id !== taskId);
             renderTasks();
             showToast("تم حذف المهمة بنجاح ✓");
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('tasks').delete().eq('id', taskId);
                 } catch (e) {
-                    console.warn("Supabase task delete error:", e);
+                    console.warn("Task delete error:", e);
                 }
             }
         }
 
         async function handleCreateLead(e) {
             e.preventDefault();
-            if (!currentTenant) {
-                openAuthModal();
-                return;
-            }
+            if (!currentUser) return;
 
             const company = document.getElementById('m_company')?.value?.trim();
             const location = document.getElementById('m_location')?.value?.trim() || '';
@@ -1359,16 +1604,18 @@
             const value = valElem ? Number(valElem.value) || 0 : 0;
             const stageElem = document.getElementById('m_stage');
             const stage = stageElem ? stageElem.value : 'lead';
+            const assigned = document.getElementById('m_assigned')?.value || currentUser.user;
             const notes = document.getElementById('m_notes')?.value?.trim() || '';
 
             if (!company) {
-                showToast("يرجى إدخال اسم المصنع أو الشركة");
+                showToast("يرجى إدخال اسم الشركة");
                 return;
             }
 
             const newDeal = {
                 id: Date.now(),
-                tenant_id: currentTenant.id,
+                tenant_id: currentUser.company_id,
+                assigned_to: assigned,
                 company,
                 location,
                 sector,
@@ -1380,27 +1627,24 @@
                 notes
             };
 
-            deals.unshift(newDeal);
+            allDeals.unshift(newDeal);
             refreshAllViews();
             closeModal('newLeadModal');
             e.target.reset();
-            showToast("تم إضافة الصفقة بنجاح إلى منظومة رَصَد ✓");
+            showToast(`تم إضافة الصفقة وإسنادها للمندوب (${assigned}) ✓`);
 
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('deals').insert([newDeal]);
                 } catch (err) {
-                    console.warn("Supabase insert error:", err);
+                    console.warn("Deal insert error:", err);
                 }
             }
         }
 
         async function handleCreateTask(e) {
             e.preventDefault();
-            if (!currentTenant) {
-                openAuthModal();
-                return;
-            }
+            if (!currentUser) return;
 
             const text = document.getElementById('t_text')?.value?.trim();
             const company = document.getElementById('t_company')?.value?.trim() || '';
@@ -1411,7 +1655,8 @@
 
             const newTask = {
                 id: Date.now(),
-                tenant_id: currentTenant.id,
+                tenant_id: currentUser.company_id,
+                assigned_to: currentUser.user,
                 text,
                 company,
                 date,
@@ -1419,7 +1664,7 @@
                 done: false
             };
 
-            tasks.unshift(newTask);
+            allTasks.unshift(newTask);
             renderTasks();
             closeModal('newTaskModal');
             e.target.reset();
@@ -1429,7 +1674,7 @@
                 try {
                     await supabaseClient.from('tasks').insert([newTask]);
                 } catch (err) {
-                    console.warn("Supabase task insert error:", err);
+                    console.warn("Task insert error:", err);
                 }
             }
         }
@@ -1437,7 +1682,8 @@
         function downloadExcelTemplate() {
             const templateData = [
                 {
-                    "اسم المصنع / الشركة": "مثال: مصنع الأهرام للحديد",
+                    "اسم المصنع / الشركة": "مصنع النور للتجهيزات",
+                    "المندوب المسؤول": "م/ أحمد سامي",
                     "القطاع / النشاط": "صناعات هندسية ومعدات",
                     "المدينة / المنطقة": "العاشر من رمضان",
                     "مسؤول التواصل": "م/ وائل الشريف",
@@ -1456,12 +1702,14 @@
         }
 
         function exportDealsToExcel() {
+            const deals = getFilteredDeals();
             if (deals.length === 0) {
                 showToast("لا توجد صفقات لتصديرها");
                 return;
             }
             const exportData = deals.map(d => ({
                 "اسم المصنع / الشركة": d.company,
+                "المندوب المسؤول": d.assigned_to || '',
                 "القطاع / النشاط": d.sector || '',
                 "المدينة / المنطقة": d.location || '',
                 "مسؤول التواصل": d.contact || '',
@@ -1475,7 +1723,7 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "صفقات_رصد");
             XLSX.writeFile(wb, `صفقات_رصد_${Date.now()}.xlsx`);
-            showToast("تم تصدير الصفقات إلى ملف إكسيل بنجاح ✓");
+            showToast("تم تصدير الصفقات إلى إكسيل بنجاح ✓");
         }
 
         function handleExcelFileUpload(event) {
@@ -1487,36 +1735,34 @@
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[firstSheetName];
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
 
                     if (!jsonData || jsonData.length === 0) {
-                        showToast("الملف فارغ أو لا يحتوي على صفوف بيانات صحيحة");
+                        showToast("الملف لا يحتوي على بيانات");
                         return;
                     }
 
                     parsedExcelDeals = jsonData.map((row, idx) => {
-                        const company = row["اسم المصنع / الشركة"] || row["الشركة"] || row["اسم الشركة"] || row["Company"] || `شركة مستوردة ${idx + 1}`;
-                        const sector = row["القطاع / النشاط"] || row["القطاع"] || row["Sector"] || "صناعات عامة";
-                        const location = row["المدينة / المنطقة"] || row["المنطقة"] || row["Location"] || "مصر";
-                        const contact = row["مسؤول التواصل"] || row["المسؤول"] || row["Contact"] || "";
-                        const phone = String(row["رقم الهاتف"] || row["الهاتف"] || row["الموبايل"] || row["Phone"] || "");
-                        const email = row["البريد الإلكتروني"] || row["الإيميل"] || row["Email"] || "";
-                        const rawVal = row["قيمة الصفقة (ج.م)"] || row["القيمة"] || row["قيمة الصفقة"] || row["Value"] || 0;
-                        const value = Number(rawVal) || 100000;
+                        const company = row["اسم المصنع / الشركة"] || row["الشركة"] || row["Company"] || `شركة ${idx + 1}`;
+                        const assigned = row["المندوب المسؤول"] || row["المندوب"] || currentUser.user;
+                        const sector = row["القطاع / النشاط"] || row["القطاع"] || "صناعات عامة";
+                        const location = row["المدينة / المنطقة"] || row["المنطقة"] || "مصر";
+                        const contact = row["مسؤول التواصل"] || row["المسؤول"] || "";
+                        const phone = String(row["رقم الهاتف"] || row["الهاتف"] || "");
+                        const email = row["البريد الإلكتروني"] || row["الإيميل"] || "";
+                        const value = Number(row["قيمة الصفقة (ج.م)"] || row["القيمة"] || 100000);
                         
                         let stage = 'lead';
-                        const rawStage = String(row["المرحلة"] || row["Stage"] || '').trim();
-                        if (rawStage.includes('عرض') || rawStage.toLowerCase().includes('quote')) stage = 'quote';
-                        else if (rawStage.includes('تفاوض') || rawStage.toLowerCase().includes('negotiation')) stage = 'negotiation';
-                        else if (rawStage.includes('تعاقد') || rawStage.includes('توريد') || rawStage.toLowerCase().includes('won')) stage = 'won';
-
-                        const notes = row["ملاحظات"] || row["Notes"] || "تم الاستيراد تلقائياً من ملف إكسيل";
+                        const rawStage = String(row["المرحلة"] || '').trim();
+                        if (rawStage.includes('عرض')) stage = 'quote';
+                        else if (rawStage.includes('تفاوض')) stage = 'negotiation';
+                        else if (rawStage.includes('تعاقد') || rawStage.includes('توريد')) stage = 'won';
 
                         return {
                             id: Date.now() + idx,
-                            tenant_id: currentTenant ? currentTenant.id : 'tenant_default',
+                            tenant_id: currentUser.company_id,
+                            assigned_to: assigned,
                             company: String(company).trim(),
                             sector: String(sector).trim(),
                             location: String(location).trim(),
@@ -1525,7 +1771,7 @@
                             email: String(email).trim(),
                             value: value,
                             stage: stage,
-                            notes: String(notes).trim()
+                            notes: "مستورد من ملف إكسيل"
                         };
                     });
 
@@ -1537,16 +1783,14 @@
                         <tr>
                             <td class="p-2 font-bold">${d.company}</td>
                             <td class="p-2 text-slate-500">${d.sector}</td>
-                            <td class="p-2 text-slate-500">${d.location}</td>
                             <td class="p-2 font-mono" dir="ltr">${d.phone || '--'}</td>
                             <td class="p-2 font-bold text-emerald-600">${Number(d.value).toLocaleString('ar-EG')} ج.م</td>
                         </tr>
                     `).join('');
 
                     document.getElementById('btnConfirmImport').removeAttribute('disabled');
-                    showToast(`تمت قراءة ${parsedExcelDeals.length} عميل وجاهزون للاستيراد ✓`);
+                    showToast(`تمت قراءة ${parsedExcelDeals.length} عميل بنجاح ✓`);
                 } catch (err) {
-                    console.error("Excel Read Error:", err);
                     showToast("حدث خطأ أثناء قراءة ملف الإكسيل");
                 }
             };
@@ -1557,31 +1801,31 @@
             if (!parsedExcelDeals || parsedExcelDeals.length === 0) return;
 
             const btn = document.getElementById('btnConfirmImport');
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري الحفظ والمزامنة السحابية...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري الحفظ في السحابة...';
             lucide.createIcons();
 
-            deals = parsedExcelDeals.concat(deals);
+            allDeals = parsedExcelDeals.concat(allDeals);
             refreshAllViews();
 
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('deals').insert(parsedExcelDeals);
-                    showToast(`تم استيراد ومزامنة ${parsedExcelDeals.length} صفقة إلى السحابة بنجاح ✓`);
+                    showToast(`تم استيراد ${parsedExcelDeals.length} صفقة للسحابة بنجاح ✓`);
                 } catch (err) {
-                    console.warn("Supabase bulk insert warning:", err);
+                    console.warn("Import error:", err);
                 }
             }
 
             parsedExcelDeals = [];
             document.getElementById('excelFileInput').value = '';
             document.getElementById('excelPreviewContainer').classList.add('hidden');
-            btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> اعتماد واستيراد للمنظومة والسحابة';
+            btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> اعتماد واستيراد للمنظومة';
             btn.setAttribute('disabled', 'true');
             closeModal('importExcelModal');
         }
 
         function showLeadDetails(id) {
-            const deal = deals.find(d => d.id === id);
+            const deal = allDeals.find(d => d.id === id);
             if (!deal) return;
             currentDetailDealId = id;
 
@@ -1589,7 +1833,7 @@
             document.getElementById('detail_sector').innerText = (deal.sector || '') + ' • ' + (deal.location || '');
             document.getElementById('detail_value').innerText = Number(deal.value || 0).toLocaleString('ar-EG') + ' ج.م';
             document.getElementById('detail_stage').innerText = getStageName(deal.stage);
-            document.getElementById('detail_location').innerText = deal.location || 'غير محدد';
+            document.getElementById('detail_assigned').innerText = deal.assigned_to || 'غير محدد';
             document.getElementById('detail_contact').innerText = deal.contact || 'غير محدد';
             document.getElementById('detail_phone').innerText = deal.phone || '--';
             document.getElementById('detail_email').innerText = deal.email || '--';
@@ -1599,31 +1843,31 @@
         }
 
         function openWhatsAppForCurrentDetail() {
-            const deal = deals.find(d => d.id === currentDetailDealId);
+            const deal = allDeals.find(d => d.id === currentDetailDealId);
             if (deal && deal.phone) {
                 openDirectWhatsApp(deal.phone, deal.company);
             } else {
-                showToast("لا يوجد رقم هاتف مسجل لهذا العميل");
+                showToast("لا يوجد رقم هاتف لهذا العميل");
             }
         }
 
         function openEmailForCurrentDetail() {
-            const deal = deals.find(d => d.id === currentDetailDealId);
+            const deal = allDeals.find(d => d.id === currentDetailDealId);
             if (deal && deal.email) {
                 openDirectEmail(deal.email, deal.company);
             } else {
-                showToast("لا يوجد بريد إلكتروني مسجل لهذا العميل");
+                showToast("لا يوجد بريد إلكتروني لهذا العميل");
             }
         }
 
         function prepareAiForDetail() {
-            const deal = deals.find(d => d.id === currentDetailDealId);
+            const deal = allDeals.find(d => d.id === currentDetailDealId);
             if (!deal) return;
             closeModal('leadDetailModal');
             switchTab('ai');
             const promptBox = document.getElementById('aiCustomerMessage');
             if (promptBox) {
-                promptBox.value = `العميل: ${deal.company} (${deal.sector || ''} في ${deal.location || ''})\nالقيمة المتوقعة: ${Number(deal.value).toLocaleString('ar-EG')} ج.م\nالمرحلة: ${getStageName(deal.stage)}\nالملاحظات الحالية: ${deal.notes || 'لا توجد'}\n\nالمطلوب: صياغة خطة عمل ومسودة رسالة واتساب لحسم الصفقة وإقناع العميل.`;
+                promptBox.value = `العميل: ${deal.company} (${deal.sector || ''})\nالقيمة: ${Number(deal.value).toLocaleString('ar-EG')} ج.م\nالمسؤول: ${deal.assigned_to || ''}\nالمرحلة: ${getStageName(deal.stage)}\nالملاحظات: ${deal.notes || 'لا توجد'}\n\nالمطلوب: صياغة مسودة رد بيعي وخطة لإغلاق الصفقة.`;
             }
         }
 
@@ -1639,29 +1883,23 @@
                 return;
             }
             const clean = formatEgyptianPhone(phone);
-            const msg = encodeURIComponent(`السلام عليكم يا فندم، بخصوص توريدات مصنع ${company} مع منظومة رَصَد، أردت المتابعة مع سيادتكم بخصوص الخطوة القادمة.`);
+            const msg = encodeURIComponent(`السلام عليكم يا فندم، بخصوص توريدات مصنع ${company} مع منظومة رَصَد، أردت المتابعة مع سيادتكم.`);
             window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
         }
 
         function executeWhatsAppSend() {
             const phone = document.getElementById('waPhoneNumber').value.trim();
             const msg = document.getElementById('waMessageText').value.trim();
-            if (!phone) {
-                showToast("يرجى إدخال رقم الهاتف");
-                return;
-            }
+            if (!phone) return;
             const clean = formatEgyptianPhone(phone);
             window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
             closeModal('quickWhatsAppModal');
         }
 
         function openDirectEmail(email, company) {
-            if (!email) {
-                showToast("البريد الإلكتروني غير متوفر");
-                return;
-            }
+            if (!email) return;
             const subject = encodeURIComponent(`عرض أسعار وتوريدات معتمدة - ${company}`);
-            const body = encodeURIComponent(`السيد الفاضل مسؤول المشتريات بشركة ${company}،\nتحية طيبة وبعد،،\n\nنرفق لسيادتكم العرض الفني والمالي الخاص بطلبيتكم من منظومة رَصَد.\n\nوتفضلوا بقبول فائق الاحترام والتقدير،`);
+            const body = encodeURIComponent(`عناية إدارة المشتريات بشركة ${company}،\nتحية طيبة وبعد،،\n\nنرفق لسيادتكم تفاصيل العرض الفني والمالي من منظومة رَصَد.`);
             window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
         }
 
@@ -1682,9 +1920,11 @@
         }
 
         function populateSelectBoxes() {
+            const deals = getFilteredDeals();
             const waSelect = document.getElementById('waSelectClient');
             const emailSelect = document.getElementById('emailSelectClient');
             const sectorFilter = document.getElementById('sectorFilter');
+            const assignedSelect = document.getElementById('m_assigned');
 
             if (waSelect) {
                 waSelect.innerHTML = '<option value="">-- كتابة رقم يدوي --</option>' + deals.map(d => `<option value="${d.id}">${d.company} (${d.phone || 'بدون هاتف'})</option>`).join('');
@@ -1693,14 +1933,17 @@
                 emailSelect.innerHTML = '<option value="">-- إدخال إيميل يدوي --</option>' + deals.map(d => `<option value="${d.id}">${d.company} (${d.email || 'بدون إيميل'})</option>`).join('');
             }
             if (sectorFilter) {
-                const sectors = Array.from(new Set(deals.map(d => d.sector).filter(Boolean)));
-                sectorFilter.innerHTML = '<option value="all">كل القطاعات والأنشطة</option>' + sectors.map(s => `<option value="${s}">${s}</option>`).join('');
+                const sectors = Array.from(new Set(allDeals.map(d => d.sector).filter(Boolean)));
+                sectorFilter.innerHTML = '<option value="all">كل القطاعات</option>' + sectors.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+            if (assignedSelect) {
+                assignedSelect.innerHTML = teamMembers.map(m => `<option value="${m.user_name}" ${m.user_name === currentUser.user ? 'selected' : ''}>${m.user_name} (${m.role === 'admin' ? 'مدير' : 'مندوب'})</option>`).join('');
             }
         }
 
         function autoFillWhatsApp() {
             const id = document.getElementById('waSelectClient').value;
-            const deal = deals.find(d => d.id == id);
+            const deal = allDeals.find(d => d.id == id);
             if (deal) {
                 document.getElementById('waPhoneNumber').value = deal.phone || '';
                 document.getElementById('waMessageText').value = `مرحباً بحضرتك يا فندم، بخصوص التوريدات الخاصة بـ ${deal.company}، يشرفنا التواصل لمتابعة العرض الفني وتحديد موعد للتسليم.`;
@@ -1709,27 +1952,24 @@
 
         function autoFillEmail() {
             const id = document.getElementById('emailSelectClient').value;
-            const deal = deals.find(d => d.id == id);
+            const deal = allDeals.find(d => d.id == id);
             if (deal) {
                 document.getElementById('emailTo').value = deal.email || '';
                 document.getElementById('emailSubject').value = `عرض أسعار وتوريد معتمد - ${deal.company}`;
-                document.getElementById('emailBody').value = `عناية السيد / ${deal.contact || 'مسؤول المشتريات'}\nشركة / ${deal.company}\n\nتحية طيبة وبعد،،\n\nإلحاقاً لتواصلنا بخصوص صفقة التوريد بقيمة تقديرية ${Number(deal.value || 0).toLocaleString('ar-EG')} ج.م، يسعدنا إرسال الشروط والمواصفات الفنية المعتمدة.\n\nشاكرين حسن تعاونكم،\nإدارة المبيعات والتوريدات.`;
+                document.getElementById('emailBody').value = `عناية السيد / ${deal.contact || 'مسؤول المشتريات'}\nشركة / ${deal.company}\n\nتحية طيبة وبعد،،\n\nنرفق لسيادتكم الشروط والمواصفات المعتمدة.\n\nشاكرين حسن تعاونكم،\nإدارة المبيعات والتوريدات.`;
             }
         }
 
         function fillAiExample(num) {
             const box = document.getElementById('aiCustomerMessage');
-            if (num === 1) box.value = "العميل في مصنع الدلتا بيقول: العرض ممتاز بس شروط الدفع عندكم 30 يوم وإحنا دورة الصرف عندنا في المصنع 90 يوم آجل، لو مفيش تسهيل مش هنقدر نعتمد أمر التوريد.";
+            if (num === 1) box.value = "العميل في مصنع الدلتا بيقول: العرض ممتاز بس شروط الدفع عندكم 30 يوم وإحنا دورة الصرف 90 يوم آجل، لو مفيش تسهيل مش هنقدر نعتمد أمر التوريد.";
             if (num === 2) box.value = "العميل بيقول إن المنافس مقدمله سعر أقل بـ 10% على نفس بنود التوريد، وبيسأل ليه يشتري مننا بالرقم ده؟";
-            if (num === 3) box.value = "المهندس الفني في شركة الكيماويات محتاج شهادات اختبار معتمدة وعينة مجانية قبل اعتماد أمر التوريد النهائي بقيمة نصف مليون جنيه.";
+            if (num === 3) box.value = "المهندس الفني محتاج شهادات اختبار معتمدة وعينة مجانية قبل اعتماد أمر التوريد النهائي.";
         }
 
         function generateAiSalesResponse() {
             const input = document.getElementById('aiCustomerMessage').value.trim();
-            if (!input) {
-                showToast("يرجى إدخال رسالة أو استفسار العميل أولاً");
-                return;
-            }
+            if (!input) return;
 
             const btn = document.getElementById('aiSubmitBtn');
             btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري التحليل وصياغة الرد...';
@@ -1738,19 +1978,19 @@
             setTimeout(() => {
                 document.getElementById('aiOutputContainer').classList.remove('hidden');
                 if (input.includes('90') || input.includes('آجل') || input.includes('دفع')) {
-                    document.getElementById('aiPsychologicalAnalysis').innerText = "العميل ليس لديه مشكلة فنية في منتجك، مشكلته الحقيقية هي حماية تدفقه النقدي (Cash Flow). التمسك بـ 30 يوماً بشكل جامد قد يخسرك الصفقة، لكن النزول لـ 90 يوماً يضر بسيولتك. الحل يكمن في حل وسط مرحلي.";
-                    document.getElementById('aiDraftReply').innerText = `أهلاً بحضرتك يا فندم،\nمقدّرين جداً سياسة الصرف المعتمدة لديكم وحريصون على بدء شراكة استراتيجية طويلة الأجل.\n\nكحل مرن يضمن بدء التوريد الفوري دون تعطيل خطوط الإنتاج: يمكننا الاتفاق على سداد 40% عند الاستلام بعد الفحص، والباقي (60%) على 60 يوماً بتسهيل خاص، مع ضمان ثبات الأسعار طوال مدة التوريد.\n\nهل يناسب حضرتك إدراج هذا البند في مسودة العقد لاعتماده اليوم؟`;
-                    document.getElementById('aiNextAction').innerText = "تحديث حالة الصفقة إلى (تفاوض وشروط الدفع)، وجدولة مهمة اتصال خلال 24 ساعة لمراجعة المقترح البديل.";
+                    document.getElementById('aiPsychologicalAnalysis').innerText = "العميل هدفه حماية التدفق النقدي لديه. الحل يكمن في تقسيم الدفعات كحل وسط مرحلي.";
+                    document.getElementById('aiDraftReply').innerText = `أهلاً بحضرتك يا فندم،\nمقدّرين جداً سياسة الصرف لديكم. كحل مرن يضمن التوريد الفوري: نقترح سداد 40% عند الاستلام بعد الفحص، والباقي على 60 يوماً بتسهيل خاص مع تثبيت الأسعار.\n\nهل يناسب حضرتك إدراج هذا البند لاعتماد العقد اليوم؟`;
+                    document.getElementById('aiNextAction').innerText = "نقل الصفقة إلى مرحلة (تفاوض وشروط الدفع)، وجدولة اتصال خلال 24 ساعة.";
                 } else if (input.includes('أقل') || input.includes('المنافس') || input.includes('سعر')) {
-                    document.getElementById('aiPsychologicalAnalysis').innerText = "العميل يستخدم ورقة المنافس للضغط السعري والحصول على خصم. تجنب النزول السريع في السعر؛ بل ركّز على التكلفة الكلية للملكية (TCO) وسرعة التوريد وتوفر قطع الغيار وخدمة ما بعد البيع.";
-                    document.getElementById('aiDraftReply').innerText = `تحياتي لحضرتك يا فندم،\nفارق الـ 10% مفهوم تماماً في السوق، لكن الفارق الحقيقي يكمن في: مطابقة المواصفات القياسية، التوريد الفوري من مستودعاتنا في مصر خلال 48 ساعة بدلاً من الانتظار، مع شهادة ضمان معتمدة توفر عليك أي تكلفة صيانة غير متوقعة.\n\nيسعدنا ترتيب زيارة سريعة للمهندس الفني لمعاينة عينة حية قبل اتخاذ القرار النهائي.`;
-                    document.getElementById('aiNextAction').innerText = "إرسال ملف المقارنة الفنية على إيميل العميل، ومتابعة هاتفية غداً صباحاً.";
+                    document.getElementById('aiPsychologicalAnalysis').innerText = "العميل يضغط سعرياً؛ ركز على سرعة التوريد، الضمان المحلي، وتوفر قطع الغيار.";
+                    document.getElementById('aiDraftReply').innerText = `تحياتي لحضرتك يا فندم،\nفارق الـ 10% مفهوم تماماً، لكن الفارق يكمن في سرعة التوريد خلال 48 ساعة من مستودعاتنا بدلاً من الانتظار، مع شهادة ضمان معتمدة توفر عليك أي تكلفة صيانة غير متوقعة.`;
+                    document.getElementById('aiNextAction').innerText = "إرسال ملف المقارنة الفنية ومتابعة هاتفية صباح الغد.";
                 } else {
-                    document.getElementById('aiPsychologicalAnalysis').innerText = "استفسار جاد جداً يعكس نية شراء مرتفعة، يتطلب رداً احترافياً سريعاً يزيل التردد ويوثق الملاءمة الفنية.";
-                    document.getElementById('aiDraftReply').innerText = `أهلاً بك يا فندم، تم تجهيز كافة المواصفات والشهادات الفنية المطلوبة، وسيقوم مسؤول الحسابات الفنية لدينا بالتواصل مع سيادتكم لتسليم العينات المطلوبة والتأكد من مطابقتها لكراسة الشروط.`;
+                    document.getElementById('aiPsychologicalAnalysis').innerText = "استفسار جاد يعكس نية شراء مرتفعة، يتطلب رداً احترافياً يزيل التردد ويوثق الملاءمة الفنية.";
+                    document.getElementById('aiDraftReply').innerText = `أهلاً بك يا فندم، تم تجهيز كافة المواصفات والشهادات الفنية المطلوبة، وسيقوم مسؤول الحسابات الفنية بالتواصل لتسليم العينات المعتمدة.`;
                     document.getElementById('aiNextAction').innerText = "إضافة مهمة إرسال ملف المواصفات للمصنع اليوم.";
                 }
-                btn.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4"></i> تحليل الرسالة وتوليد الرد والخطوة القادمة';
+                btn.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4"></i> تحليل الرسالة وتوليد الرد';
                 lucide.createIcons();
             }, 600);
         }
@@ -1769,7 +2009,7 @@
                 document.execCommand('copy');
                 showToast(successMsg || "تم النسخ بنجاح ✓");
             } catch (err) {
-                showToast("تعذر النسخ التلقائي");
+                showToast("تعذر النسخ");
             } finally {
                 document.body.removeChild(textarea);
             }
